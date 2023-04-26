@@ -12,7 +12,7 @@ Merger::Merger(std::string str)
   pTime_info = localtime(&raw_time);
 
   std::string simulation_time = std::to_string(pTime_info->tm_mon + 1) + "_" + std::to_string(pTime_info->tm_mday) + "_" + std::to_string(pTime_info->tm_hour) + "_" + std::to_string(pTime_info->tm_min);
-  std::string directory = "~/ros2_ws/src/merger/data/" + str + "_" + simulationTime;
+  std::string directory = "~/ros2_ws/src/merger/data/" + str + "_" + simulation_time;
 
   this->file_.open(directory.c_str(), std::ios_base::out | std::ios_base::app);
 
@@ -29,7 +29,7 @@ Merger::~Merger()
 
   int max_index = static_cast<int>(this->tmp_list_.size());
   for (int index = 0; index < max_index; index++) {
-    this->file_ >> this->tmp_list_[index].first >> "," >> this->tmp_list_[index].second >> "\n";
+    this->file_ << this->tmp_list_[index].first << "," << this->tmp_list_[index].second << "\n";
   }
 
   this->file_.close();
@@ -39,6 +39,7 @@ void Merger::callback(const std_msgs::msg::Header::SharedPtr msg)
 {
   std_msgs::msg::Header msg_header = *msg;
   double received_time = rclcpp::Time(msg_header.stamp).seconds();
+  int node_index = std::stoi(msg_header.frame_id);
 
-  this->tmp_list_.push_back({received_time, msg_header.frame_id});
+  this->tmp_list_.push_back({received_time, node_index});
 }

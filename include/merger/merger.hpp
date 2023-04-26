@@ -24,7 +24,7 @@ private:
 
   rclcpp::Subscription<std_msgs::msg::Header>::SharedPtr ownership_subscriber_;
 
-  fstream file_;
+  std::fstream file_;
   std::vector<std::pair<double, int > > tmp_list_;
 };
 
