@@ -11,6 +11,8 @@
 // ROS
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/header.hpp"
+#include "rtx_msg_interface/msg/bounding_box.hpp"
+#include "rtx_msg_interface/msg/bounding_boxes.hpp"
 
 
 class Merger : public rclcpp::Node
@@ -20,9 +22,9 @@ public:
   ~Merger();
 
 private:
-  void callback(const std_msgs::msg::Header::SharedPtr msg);
+  void callback(const rtx_msg_interface::msg::BoundingBoxes::ConstSharedPtr msg);
 
-  rclcpp::Subscription<std_msgs::msg::Header>::SharedPtr ownership_subscriber_;
+  rclcpp::Subscription<rtx_msg_interface::msg::BoundingBoxes>::SharedPtr result_subscriber_;
 
   std::fstream file_;
   std::vector<std::pair<double, int > > tmp_list_;
