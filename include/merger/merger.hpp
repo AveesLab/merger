@@ -22,7 +22,7 @@ public:
   ~Merger();
 
 private:
-  void callback(const rtx_msg_interface::msg::BoundingBoxes::ConstSharedPtr msg);
+  void callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg);
 
   rclcpp::Subscription<rtx_msg_interface::msg::BoundingBoxes>::SharedPtr result_subscriber_;
 

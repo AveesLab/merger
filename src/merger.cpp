@@ -12,7 +12,7 @@ Merger::Merger(std::string str)
   pTime_info = localtime(&raw_time);
 
   std::string simulation_time = std::to_string(pTime_info->tm_mon + 1) + "_" + std::to_string(pTime_info->tm_mday) + "_" + std::to_string(pTime_info->tm_hour) + "_" + std::to_string(pTime_info->tm_min);
-  std::string directory = "~/ros2_ws/src/merger/data/" + str + "_" + simulation_time;
+  std::string directory = "./src/merger/data/" + str + "_" + simulation_time;
 
   this->file_.open(directory.c_str(), std::ios_base::out | std::ios_base::app);
 
@@ -20,12 +20,12 @@ Merger::Merger(std::string str)
 
   // Subscriber
   using std::placeholders::_1;
-  this->ownership_subscriber_ = this->create_subscription<std_msgs::msg::Header>("camera/ownership", system_qos, std::bind(&Merger::callback, this, _1));
+  this->result_subscriber_ = this->create_subscription<rtx_msg_interface::msg::BoundingBoxes>("/cluster/result", system_qos, std::bind(&Merger::callback, this, _1));
 }
 
 Merger::~Merger()
 {
-  std::sort(this->tmp_list_.begin(), this->tmp_list_.end());
+ // std::sort(this->tmp_list_.begin(), this->tmp_list_.end());
 
   int max_index = static_cast<int>(this->tmp_list_.size());
   for (int index = 0; index < max_index; index++) {
@@ -35,9 +35,9 @@ Merger::~Merger()
   this->file_.close();
 }
 
-void Merger::callback(const std_msgs::msg::Header::SharedPtr msg)
+void Merger::callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg)
 {
-  std_msgs::msg::Header msg_header = *msg;
+  std_msgs::msg::Header msg_header = msg->image_header;
   double received_time = rclcpp::Time(msg_header.stamp).seconds();
   int node_index = std::stoi(msg_header.frame_id);
 

@@ -24,6 +24,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(rtx_msg_interface REQUIRED)
 
 include_directories(include)
 
@@ -33,6 +34,7 @@ ament_target_dependencies(merger_node
   rclcpp
   std_msgs
   sensor_msgs
+  rtx_msg_interface
 )
 
 add_library(merger_library SHARED src/merger.cpp)
@@ -40,6 +42,7 @@ ament_target_dependencies(merger_library
   rclcpp
   std_msgs
   sensor_msgs
+  rtx_msg_interface
 )
 
 target_link_libraries(merger_node
