@@ -38,8 +38,23 @@ Merger::~Merger()
 void Merger::callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg)
 {
   std_msgs::msg::Header msg_header = msg->image_header;
-  double received_time = rclcpp::Time(msg_header.stamp).seconds();
-  int node_index = std::stoi(msg_header.frame_id);
+
+  try {
+    double received_time = rclcpp::Time(msg_header.stamp).seconds();
+  }
+  catch {
+    RCLCPP_ERROR(this->get_logger(), "No match time stamp");
+    return;
+  }
+  
+  try {
+    int node_index = std::stoi(msg_header.frame_id);
+  }
+  catch {
+    RCLCPP_ERROR(this->get_logger(), "No match frame_id");
+    return;
+  }
+  
 
   this->tmp_list_.push_back({received_time, node_index});
 }
