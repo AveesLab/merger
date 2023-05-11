@@ -1,8 +1,8 @@
 #include "merger/merger.hpp"
 
 
-Merger::Merger(std::string str)
-: Node("Merger")
+MergerDemo::MergerDemo(std::string str)
+: Node("MergerDemo")
 {
   // Set csv name
   time_t raw_time;
@@ -20,7 +20,7 @@ Merger::Merger(std::string str)
 
   // Subscriber
   using std::placeholders::_1;
-  this->result_subscriber_ = this->create_subscription<rtx_msg_interface::msg::BoundingBoxes>("/cluster/result", system_qos, std::bind(&Merger::callback, this, _1));
+  this->result_subscriber_ = this->create_subscription<rtx_msg_interface::msg::BoundingBoxes>("/cluster/result/image", system_qos, std::bind(&Merger::callback, this, _1));
 }
 
 Merger::~Merger()
@@ -39,13 +39,9 @@ void Merger::callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg
 {
   std_msgs::msg::Header msg_header = msg->image_header;
 
-  rclcpp::Time now_stamp = this->get_clock()->now();
-
-  rclcpp::Time received_image_stamp;
-  double received_image_time = -1;
+  double received_time = -1.0;
   try {
-    received_image_stamp = rclcpp::Time(msg_header.stamp);
-    received_image_time = received_image_stamp.seconds() * 1000.0;
+    received_time = rclcpp::Time(msg_header.stamp).seconds();
   }
   catch (std::string & s) {
     RCLCPP_ERROR(this->get_logger(), "No match time stamp");
@@ -60,17 +56,6 @@ void Merger::callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg
     RCLCPP_ERROR(this->get_logger(), "No match frame_id");
     return;
   }
-
-  try {
-    if ((now_stamp - received_image_stamp).seconds() < 100.0)
-    {
-      received_image_time = (now_stamp - received_image_stamp).seconds() * 1000.0;
-    }
-  }
-  catch (std::string & s) {
-    RCLCPP_ERROR(this->get_logger(), "image's stamp is not server time");
-    return;
-  }
-
-  this->tmp_list_.push_back({received_image_time, node_index});
+  
+  this->tmp_list_.push_back({received_time, node_index});
 }
