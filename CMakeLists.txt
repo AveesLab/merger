@@ -25,6 +25,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(rtx_msg_interface REQUIRED)
+find_package(cv_bridge REQUIRED)
 
 include_directories(include)
 
@@ -37,6 +38,15 @@ ament_target_dependencies(merger_node
   rtx_msg_interface
 )
 
+add_executable(demo_node src/exec/demo_exec.cpp)
+ament_target_dependencies(demo_node
+  rclcpp
+  std_msgs
+  sensor_msgs
+  rtx_msg_interface
+  cv_bridge
+)
+
 add_library(merger_library SHARED src/merger.cpp)
 ament_target_dependencies(merger_library
   rclcpp
@@ -45,12 +55,26 @@ ament_target_dependencies(merger_library
   rtx_msg_interface
 )
 
+add_library(demo_library SHARED src/demo.cpp)
+ament_target_dependencies(demo_library
+  rclcpp
+  std_msgs
+  sensor_msgs
+  rtx_msg_interface
+  cv_bridge
+)
+
 target_link_libraries(merger_node
   merger_library
 )
 
+target_link_libraries(demo_node
+  demo_library
+)
+
 install(TARGETS
   merger_library
+  demo_library
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
@@ -58,12 +82,8 @@ install(TARGETS
 
 install(TARGETS
   merger_node
+  demo_node
   DESTINATION lib/${PROJECT_NAME}
-)
-
-install(DIRECTORY
-  launch
-  DESTINATION share/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

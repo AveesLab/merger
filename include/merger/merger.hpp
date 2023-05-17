@@ -26,7 +26,12 @@ private:
 
   rclcpp::Subscription<rtx_msg_interface::msg::BoundingBoxes>::SharedPtr result_subscriber_;
 
+  double initialized_time_ = 0.0;
+
   std::fstream file_;
-  std::vector<std::pair<double, int > > tmp_list_;
+  std::vector<int> tmp_list_stamp;
+  std::vector<double> tmp_list_all_node_time;
+  std::vector<double> tmp_list_inference_execution_time;
+  std::vector<int> tmp_list_node_index;
 };
 

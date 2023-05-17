@@ -27,9 +27,12 @@ Merger::~Merger()
 {
  // std::sort(this->tmp_list_.begin(), this->tmp_list_.end());
 
-  int max_index = static_cast<int>(this->tmp_list_.size());
+  int max_index = static_cast<int>(this->tmp_list_stamp.size());
   for (int index = 0; index < max_index; index++) {
-    this->file_ << this->tmp_list_[index].first << "," << this->tmp_list_[index].second << "\n";
+    this->file_ << this->tmp_list_stamp[index] << ","
+                << this->tmp_list_all_node_time[index] << ","
+                << this->tmp_list_inference_execution_time[index] << ","
+                << this->tmp_list_node_index[index] << "\n";
   }
 
   this->file_.close();
@@ -38,14 +41,35 @@ Merger::~Merger()
 void Merger::callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg)
 {
   std_msgs::msg::Header msg_header = msg->image_header;
+  if (this->initialized_time_ == 0.0)
+  {
+    try {
+      this->initialized_time_ = rclcpp::Time(msg->image_header.stamp).seconds() * 1000.0;
+    }
+    catch (std::string & s) {
+      RCLCPP_ERROR(this->get_logger(), "No match time stamp");
+      return;
+    }
+  }
 
   rclcpp::Time now_stamp = this->get_clock()->now();
 
   rclcpp::Time received_image_stamp;
-  double received_image_time = -1;
+  int received_image_time = -1;
   try {
     received_image_stamp = rclcpp::Time(msg_header.stamp);
-    received_image_time = received_image_stamp.seconds() * 1000.0;
+    received_image_time = static_cast<int>(received_image_stamp.seconds() * 1000.0 - this->initialized_time_);
+  }
+  catch (std::string & s) {
+    RCLCPP_ERROR(this->get_logger(), "No match time stamp");
+    return;
+  }
+
+  rclcpp::Time inference_node_stamp;
+  double inference_node_time = -1;
+  try {
+    inference_node_stamp = rclcpp::Time(msg->header.stamp);
+    inference_node_time = inference_node_stamp.seconds() * 1000.0;
   }
   catch (std::string & s) {
     RCLCPP_ERROR(this->get_logger(), "No match time stamp");
@@ -61,10 +85,11 @@ void Merger::callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg
     return;
   }
 
+  double all_node_time = -1;
   try {
     if ((now_stamp - received_image_stamp).seconds() < 100.0)
     {
-      received_image_time = (now_stamp - received_image_stamp).seconds() * 1000.0;
+      all_node_time = (now_stamp - received_image_stamp).seconds() * 1000.0;
     }
   }
   catch (std::string & s) {
@@ -72,5 +97,10 @@ void Merger::callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg
     return;
   }
 
-  this->tmp_list_.push_back({received_image_time, node_index});
+  RCLCPP_INFO(this->get_logger(), "[Merger] : Receive result. (%lf ms.)", rclcpp::Time(msg_header.stamp).seconds() * 1000.0);
+
+  this->tmp_list_stamp.push_back(received_image_time);
+  this->tmp_list_all_node_time.push_back(all_node_time);
+  this->tmp_list_inference_execution_time.push_back(inference_node_time);
+  this->tmp_list_node_index.push_back(node_index);
 }
