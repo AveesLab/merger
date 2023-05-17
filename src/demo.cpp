@@ -60,14 +60,31 @@ void MergerDemo::result_callback(const sensor_msgs::msg::Image::SharedPtr image)
 
 void MergerDemo::compressed_result_callback(const sensor_msgs::msg::CompressedImage::SharedPtr compressed_image)
 {
+  if (use_benchmark_) {
+    this->file_ << static_cast<long long int>(rclcpp::Time(compressed_image->header.stamp).seconds() * 1000000.0) << ",";
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+  }
+
   // Convert Ros2 image to OpenCV image
   cv_bridge::CvImageConstPtr cv_image = cv_bridge::toCvCopy(compressed_image, sensor_msgs::image_encodings::RGB8);
   if (cv_image->image.empty()) return;
 
+  if (use_benchmark_) {
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+  }
+
   RCLCPP_INFO(this->get_logger(), " - image stamp : %10.5lf s.", rclcpp::Time(compressed_image->header.stamp).seconds());
   cv::imshow("Result image", cv_image->image);
 
+  if (use_benchmark_) {
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+  }
+
   cv::waitKey(10);
+
+  if (use_benchmark_) {
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << "\n";
+  }
 }
 
 void MergerDemo::benchmark()
