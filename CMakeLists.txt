@@ -36,6 +36,7 @@ ament_target_dependencies(merger_node
   std_msgs
   sensor_msgs
   rtx_msg_interface
+  cv_bridge
 )
 
 add_executable(demo_node src/exec/demo_exec.cpp)
@@ -53,6 +54,7 @@ ament_target_dependencies(merger_library
   std_msgs
   sensor_msgs
   rtx_msg_interface
+  cv_bridge
 )
 
 add_library(demo_library SHARED src/demo.cpp)
