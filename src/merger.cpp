@@ -96,10 +96,10 @@ void Merger::draw_image(cv_bridge::CvImagePtr cv_image, rtx_msg_interface::msg::
 {
   for (size_t i = 0; i < msg->bounding_boxes.size(); i++) {
     // Get rectangle from 1 object
-    cv::Rect r = cv::Rect(round(msg->bounding_boxes[i].left),
-                          round(msg->bounding_boxes[i].top),
-                          round(msg->bounding_boxes[i].right - msg->bounding_boxes[i].left),
-                          round(msg->bounding_boxes[i].bot - msg->bounding_boxes[i].top));
+    cv::Rect r = cv::Rect(round(msg->bounding_boxes[i].left - msg->bounding_boxes[i].top),
+                          round(msg->bounding_boxes[i].right - msg->bounding_boxes[i].bot),
+                          round(2 * msg->bounding_boxes[i].top),
+                          round(2 * msg->bounding_boxes[i].bot));
 
     // draw_box
     cv::rectangle(cv_image->image, r, cv::Scalar(0x27, 0xC1, 0x36), 2);
