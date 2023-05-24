@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-only */
 /*
- * 03_ManualRead.cpp - PCANBasic Example: ManualRead
+ * 03_ObjectDetectionsReceiver.cpp - PCANBasic Example: ObjectDetectionsReceiver
  *
  * Copyright (C) 2001-2020  PEAK System-Technik GmbH <www.peak-system.com>
  *
@@ -22,11 +22,10 @@
  * Maintainer:  Fabrice Vergnaud <f.vergnaud@peak-system.com>
  * 	    	    Romain Tissier <r.tissier@peak-system.com>
  */
-#include "03_ManualRead.h"
+#include "pcan/ObjectDetectionsReceiver.hpp"
 
-ManualRead::ManualRead()
+ObjectDetectionsReceiver::ObjectDetectionsReceiver()
 {
-	ShowConfigurationHelp(); // Shows information about this sample
 	ShowCurrentConfiguration(); // Shows the current parameters configuration
 
 	TPCANStatus stsResult;
@@ -43,29 +42,19 @@ ManualRead::ManualRead()
 		std::cout << "\n";
 		std::cout << "Closing...\n";
 		std::cout << "Press any key to continue...\n";
-		_getch();
 		return;
 	}
 
 	// Reading messages...
 	std::cout << "Successfully initialized.\n";
-	std::cout << "Start reading...\n";
-	std::cout << "Press any key to continue...\n";
-	_getch();
-	do
-	{
-		system("clear");
-		ReadMessages();
-		std::cout << "Do you want to read again? yes[y] or any other key to close\n";
-	} while (_getch() == 121);
 }
 
-ManualRead::~ManualRead()
+ObjectDetectionsReceiver::~ObjectDetectionsReceiver()
 {
 	CAN_Uninitialize(PCAN_NONEBUS);
 }
 
-void ManualRead::ReadMessages()
+void ObjectDetectionsReceiver::ReadMessages()
 {
 	TPCANStatus stsResult;
 
@@ -82,7 +71,38 @@ void ManualRead::ReadMessages()
 	} while (!(stsResult & PCAN_ERROR_QRCVEMPTY));
 }
 
-TPCANStatus ManualRead::ReadMessageFD()
+int ObjectDetectionsReceiver::GetMessage(ObjectDetection& detection)
+{
+	TPCANMsg CANMsg;
+	TPCANTimestamp CANTimeStamp;
+
+	// We execute the "Read" function of the PCANBasic
+	TPCANStatus stsResult = CAN_Read(PcanHandle, &CANMsg, &CANTimeStamp);
+
+	if (stsResult != PCAN_ERROR_QRCVEMPTY)
+	{
+		if (CANMsg.LEN == 8)
+		{
+			// Convert received message to informations
+			detection.time = (CANMsg.DATA[0] << 8) | CANMsg.DATA[1];
+			detection.id = CANMsg.DATA[2];
+			detection.center_x = (CANMsg.DATA[3] << 3) | ((CANMsg.DATA[4] >> 5));
+			detection.center_y = ((CANMsg.DATA[4] & 31) << 5) | (CANMsg.DATA[5] >> 3);
+			detection.width_half = ((CANMsg.DATA[5] & 7) << 7) | (CANMsg.DATA[6] >>1);
+			detection.height_half = ((CANMsg.DATA[6] & 1) << 8) | CANMsg.DATA[7];
+
+			return -1;
+		}
+		else if (CANMsg.LEN == 2)
+		{
+			detection.time = (CANMsg.DATA[0] << 8) | CANMsg.DATA[1];
+
+			return CANMsg.ID;
+		}
+	}
+}
+
+TPCANStatus ObjectDetectionsReceiver::ReadMessageFD()
 {
 	TPCANMsgFD CANMsg;
 	TPCANTimestampFD CANTimeStamp;
@@ -96,7 +116,7 @@ TPCANStatus ManualRead::ReadMessageFD()
 	return stsResult;
 }
 
-TPCANStatus ManualRead::ReadMessage()
+TPCANStatus ObjectDetectionsReceiver::ReadMessage()
 {
 	TPCANMsg CANMsg;
 	TPCANTimestamp CANTimeStamp;
@@ -110,49 +130,31 @@ TPCANStatus ManualRead::ReadMessage()
 	return stsResult;
 }
 
-void ManualRead::ProcessMessageCan(TPCANMsg msg, TPCANTimestamp itsTimeStamp)
+void ObjectDetectionsReceiver::ProcessMessageCan(TPCANMsg msg, TPCANTimestamp itsTimeStamp)
 {
-	UINT64 microsTimestamp = ((UINT64)itsTimeStamp.micros + 1000 * (UINT64)itsTimeStamp.millis + 0x100000000 * 1000 * itsTimeStamp.millis_overflow);
+	// UINT64 microsTimestamp = ((UINT64)itsTimeStamp.micros + 1000 * (UINT64)itsTimeStamp.millis + 0x100000000 * 1000 * itsTimeStamp.millis_overflow);
 
-	std::cout << "Type: " << GetMsgTypeString(msg.MSGTYPE) << "\n";
-	std::cout << "ID: " << GetIdString(msg.ID, msg.MSGTYPE) << "\n";
-	char result[MAX_PATH] = { 0 };
-	sprintf_s(result, sizeof(result), "%i", msg.LEN);
-	std::cout << "Length: " << result << "\n";
-	std::cout << "Time: " << GetTimeString(microsTimestamp) << "\n";
-	std::cout << "Data: " << GetDataString(msg.DATA, msg.MSGTYPE, msg.LEN) << "\n";
-	std::cout << "----------------------------------------------------------\n";
+	// std::cout << "Type: " << GetMsgTypeString(msg.MSGTYPE) << "\n";
+	// std::cout << "ID: " << GetIdString(msg.ID, msg.MSGTYPE) << "\n";
+	// char result[MAX_PATH] = { 0 };
+	// sprintf_s(result, sizeof(result), "%i", msg.LEN);
+	// std::cout << "Length: " << result << "\n";
+	// std::cout << "Time: " << GetTimeString(microsTimestamp) << "\n";
+	// std::cout << "Data: " << GetDataString(msg.DATA, msg.MSGTYPE, msg.LEN) << "\n";
+	// std::cout << "----------------------------------------------------------\n";
 }
 
-void ManualRead::ProcessMessageCanFD(TPCANMsgFD msg, TPCANTimestampFD itsTimeStamp)
+void ObjectDetectionsReceiver::ProcessMessageCanFD(TPCANMsgFD msg, TPCANTimestampFD itsTimeStamp)
 {
-	std::cout << "Type: " << GetMsgTypeString(msg.MSGTYPE) << "\n";
-	std::cout << "ID: " << GetIdString(msg.ID, msg.MSGTYPE) << "\n";
-	std::cout << "Length: " << GetLengthFromDLC(msg.DLC) << "\n";
-	std::cout << "Time: " << GetTimeString(itsTimeStamp) << "\n";
-	std::cout << "Data: " << GetDataString(msg.DATA, msg.MSGTYPE, GetLengthFromDLC(msg.DLC)) << "\n";
-	std::cout << "----------------------------------------------------------\n";
+	// std::cout << "Type: " << GetMsgTypeString(msg.MSGTYPE) << "\n";
+	// std::cout << "ID: " << GetIdString(msg.ID, msg.MSGTYPE) << "\n";
+	// std::cout << "Length: " << GetLengthFromDLC(msg.DLC) << "\n";
+	// std::cout << "Time: " << GetTimeString(itsTimeStamp) << "\n";
+	// std::cout << "Data: " << GetDataString(msg.DATA, msg.MSGTYPE, GetLengthFromDLC(msg.DLC)) << "\n";
+	// std::cout << "----------------------------------------------------------\n";
 }
 
-void ManualRead::ShowConfigurationHelp()
-{
-	std::cout << "=========================================================================================\n";
-	std::cout << "|                           PCAN-Basic ManualRead Example                                |\n";
-	std::cout << "=========================================================================================\n";
-	std::cout << "Following parameters are to be adjusted before launching, according to the hardware used |\n";
-	std::cout << "                                                                                         |\n";
-	std::cout << "* PcanHandle: Numeric value that represents the handle of the PCAN-Basic channel to use. |\n";
-	std::cout << "              See 'PCAN-Handle Definitions' within the documentation                     |\n";
-	std::cout << "* IsFD: Boolean value that indicates the communication mode, CAN (false) or CAN-FD (true)|\n";
-	std::cout << "* Bitrate: Numeric value that represents the BTR0/BR1 bitrate value to be used for CAN   |\n";
-	std::cout << "           communication                                                                 |\n";
-	std::cout << "* BitrateFD: String value that represents the nominal/data bitrate value to be used for  |\n";
-	std::cout << "             CAN-FD communication                                                        |\n";
-	std::cout << "=========================================================================================\n";
-	std::cout << "\n";
-}
-
-void ManualRead::ShowCurrentConfiguration()
+void ObjectDetectionsReceiver::ShowCurrentConfiguration()
 {
 	std::cout << "Parameter values used\n";
 	std::cout << "----------------------\n";
@@ -169,7 +171,7 @@ void ManualRead::ShowCurrentConfiguration()
 	std::cout << "\n";
 }
 
-void ManualRead::ShowStatus(TPCANStatus status)
+void ObjectDetectionsReceiver::ShowStatus(TPCANStatus status)
 {
 	std::cout << "=========================================================================================\n";
 	char buffer[MAX_PATH];
@@ -178,7 +180,7 @@ void ManualRead::ShowStatus(TPCANStatus status)
 	std::cout << "=========================================================================================\n";
 }
 
-void ManualRead::FormatChannelName(TPCANHandle handle, LPSTR buffer, bool isFD)
+void ObjectDetectionsReceiver::FormatChannelName(TPCANHandle handle, LPSTR buffer, bool isFD)
 {
 	TPCANDevice devDevice;
 	BYTE byChannel;
@@ -204,7 +206,7 @@ void ManualRead::FormatChannelName(TPCANHandle handle, LPSTR buffer, bool isFD)
 		sprintf_s(buffer, MAX_PATH, "%s %d (%Xh)", handleBuffer, byChannel, handle);
 }
 
-void ManualRead::GetTPCANHandleName(TPCANHandle handle, LPSTR buffer)
+void ObjectDetectionsReceiver::GetTPCANHandleName(TPCANHandle handle, LPSTR buffer)
 {
 	strcpy_s(buffer, MAX_PATH, "PCAN_NONE");
 	switch (handle)
@@ -272,7 +274,7 @@ void ManualRead::GetTPCANHandleName(TPCANHandle handle, LPSTR buffer)
 	}
 }
 
-void ManualRead::GetFormattedError(TPCANStatus error, LPSTR buffer)
+void ObjectDetectionsReceiver::GetFormattedError(TPCANStatus error, LPSTR buffer)
 {
 	// Gets the text using the GetErrorText API function. If the function success, the translated error is returned.
 	// If it fails, a text describing the current error is returned.
@@ -280,7 +282,7 @@ void ManualRead::GetFormattedError(TPCANStatus error, LPSTR buffer)
 		sprintf_s(buffer, MAX_PATH, "An error occurred. Error-code's text (%Xh) couldn't be retrieved", error);
 }
 
-void ManualRead::ConvertBitrateToString(TPCANBaudrate bitrate, LPSTR buffer)
+void ObjectDetectionsReceiver::ConvertBitrateToString(TPCANBaudrate bitrate, LPSTR buffer)
 {
 	switch (bitrate)
 	{
@@ -332,7 +334,7 @@ void ManualRead::ConvertBitrateToString(TPCANBaudrate bitrate, LPSTR buffer)
 	}
 }
 
-std::string ManualRead::GetMsgTypeString(TPCANMessageType msgType)
+std::string ObjectDetectionsReceiver::GetMsgTypeString(TPCANMessageType msgType)
 {
 	if ((msgType & PCAN_MESSAGE_STATUS) == PCAN_MESSAGE_STATUS)
 		return "STATUS";
@@ -364,19 +366,19 @@ std::string ManualRead::GetMsgTypeString(TPCANMessageType msgType)
 	return strTemp;
 }
 
-std::string ManualRead::GetIdString(UINT32 id, TPCANMessageType msgType)
-{
-	char result[MAX_PATH] = { 0 };
-	if ((msgType & PCAN_MESSAGE_EXTENDED) == PCAN_MESSAGE_EXTENDED)
-	{
-		sprintf_s(result, sizeof(result), "%08Xh", id);
-		return result;
-	}
-	sprintf_s(result, sizeof(result), "%03Xh", id);
-	return result;
-}
+// std::string ObjectDetectionsReceiver::GetIdString(UINT32 id, TPCANMessageType msgType)
+// {
+// 	char result[MAX_PATH] = { 0 };
+// 	if ((msgType & PCAN_MESSAGE_EXTENDED) == PCAN_MESSAGE_EXTENDED)
+// 	{
+// 		sprintf_s(result, sizeof(result), "%08Xh", id);
+// 		return result;
+// 	}
+// 	sprintf_s(result, sizeof(result), "%03Xh", id);
+// 	return result;
+// }
 
-int ManualRead::GetLengthFromDLC(BYTE dlc)
+int ObjectDetectionsReceiver::GetLengthFromDLC(BYTE dlc)
 {
 	switch (dlc)
 	{
@@ -391,15 +393,15 @@ int ManualRead::GetLengthFromDLC(BYTE dlc)
 	}
 }
 
-std::string ManualRead::GetTimeString(TPCANTimestampFD time)
-{
-	char result[MAX_PATH] = { 0 };
-	double fTime = (time / 1000.0);
-	sprintf_s(result, sizeof(result), "%.1f", fTime);
-	return result;
-}
+// std::string ObjectDetectionsReceiver::GetTimeString(TPCANTimestampFD time)
+// {
+// 	char result[MAX_PATH] = { 0 };
+// 	double fTime = (time / 1000.0);
+// 	sprintf_s(result, sizeof(result), "%.1f", fTime);
+// 	return result;
+// }
 
-std::string ManualRead::GetDataString(BYTE data[], TPCANMessageType msgType, int dataLength)
+std::string ObjectDetectionsReceiver::GetDataString(BYTE data[], TPCANMessageType msgType, int dataLength)
 {
 	if ((msgType & PCAN_MESSAGE_RTR) == PCAN_MESSAGE_RTR)
 		return "Remote Request";

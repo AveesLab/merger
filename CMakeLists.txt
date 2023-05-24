@@ -26,6 +26,7 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(rtx_msg_interface REQUIRED)
 find_package(cv_bridge REQUIRED)
+find_package(Threads REQUIRED)
 
 include_directories(include)
 
@@ -37,6 +38,7 @@ ament_target_dependencies(merger_node
   sensor_msgs
   rtx_msg_interface
   cv_bridge
+  Threads
 )
 
 add_executable(demo_node src/exec/demo_exec.cpp)
@@ -46,15 +48,17 @@ ament_target_dependencies(demo_node
   sensor_msgs
   rtx_msg_interface
   cv_bridge
+  Threads
 )
 
-add_library(merger_library SHARED src/merger.cpp)
+add_library(merger_library SHARED src/merger.cpp include/pcan/ObjectDetectionsReceiver.cpp)
 ament_target_dependencies(merger_library
   rclcpp
   std_msgs
   sensor_msgs
   rtx_msg_interface
   cv_bridge
+  Threads
 )
 
 add_library(demo_library SHARED src/demo.cpp)
@@ -64,10 +68,12 @@ ament_target_dependencies(demo_library
   sensor_msgs
   rtx_msg_interface
   cv_bridge
+  Threads
 )
 
 target_link_libraries(merger_node
   merger_library
+  pcanbasic
 )
 
 target_link_libraries(demo_node

@@ -18,10 +18,35 @@ Merger::Merger()
 
   // Information
   RCLCPP_INFO(this->get_logger(), "Initialization Finish.");
+
+  if (use_can_)
+  {
+    this->can_receiver_ = std::make_shared<ObjectDetectionsReceiver>();
+
+    this->detections_per_node_.resize(this->number_of_nodes_);
+
+    // pthread
+    pthread_mutex_init(&mutex, NULL);
+    pthread_mutex_init(&mutex_image, NULL);
+    pthread_cond_init(&cond, NULL);
+
+    pthread_create(&thread_receive, NULL, receive_thread, this);
+    pthread_create(&thread_show, NULL, show_thread, this);
+  }
+
 }
 
 Merger::~Merger()
 {
+  if (use_can_)
+  {
+    pthread_join(thread_receive, NULL);
+    pthread_join(thread_show, NULL);
+
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&cond);
+  }
+
   this->finish_benchmark();
 }
 
@@ -38,7 +63,18 @@ void Merger::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
     tmp_cv_image->encoding = "rgb8";
   }
 
-  this->image_queue_.push(tmp_cv_image);
+  if (use_can_)
+  {
+    pthread_mutex_lock(&mutex_image);
+
+    this->image_queue_.push(tmp_cv_image);
+
+    pthread_mutex_unlock(&mutex);
+  }
+  else
+  {
+    this->image_queue_.push(tmp_cv_image);
+  }
 }
 
 void Merger::callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg)
@@ -69,7 +105,7 @@ void Merger::callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg
     {
       if (queued_image_stamp == received_result_image_stamp)
       {
-        draw_image(this->image_queue_.front(), msg);
+        draw_image(this->image_queue_.front(), *msg);
 
         cv::imshow("Result image", this->image_queue_.front()->image);
         cv::waitKey(10);
@@ -92,20 +128,128 @@ void Merger::callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg
   }
 }
 
-void Merger::draw_image(cv_bridge::CvImagePtr cv_image, rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg)
+void Merger::can_receive()
 {
-  for (size_t i = 0; i < msg->bounding_boxes.size(); i++) {
+  ObjectDetection detection;
+  int node_index;
+
+  node_index = this->can_receiver_->GetMessage(detection);
+
+  if (node_index == -1)
+  {
+    pthread_mutex_lock(&mutex);
+
+    this->detections_per_node_[node_index].push_back(detection);
+
+    pthread_mutex_unlock(&mutex);
+  }
+  // else if (node_index == -2)
+  // {
+
+  // }
+  else
+  {
+    pthread_mutex_lock(&mutex);
+
+    if (this->detections_.size())
+    {
+      std::vector<ObjectDetection>().swap(this->detections_);
+    }
+
+    this->detections_.swap(this->detections_per_node_[node_index]);
+
+    pthread_cond_signal(&cond);
+
+    pthread_mutex_unlock(&mutex);
+  }
+
+}
+
+void Merger::can_show()
+{
+  // Result
+  pthread_mutex_lock(&mutex);
+
+  pthread_cond_wait(&cond, &mutex);
+
+  std::vector<ObjectDetection> detections;
+  detections.swap(this->detections_);
+
+  pthread_mutex_unlock(&mutex); 
+
+  rtx_msg_interface::msg::BoundingBoxes msg;
+
+  for (size_t object_index = 0; object_index < detections.size() - 1; object_index++)
+  {
+    msg.bounding_boxes[object_index].id = detections[object_index].id;
+    msg.bounding_boxes[object_index].left = detections[object_index].center_x;
+    msg.bounding_boxes[object_index].right = detections[object_index].center_y;
+    msg.bounding_boxes[object_index].top = detections[object_index].width_half;
+    msg.bounding_boxes[object_index].bot = detections[object_index].height_half;
+  }
+
+  // Image
+  cv_bridge::CvImagePtr cv_image;
+
+  pthread_mutex_lock(&mutex_image);
+
+  while (this->image_queue_.size())
+  {
+    int queued_image_stamp = static_cast<int>(static_cast<long long int>(rclcpp::Time(this->image_queue_.front()->header.stamp).seconds() * 1000.0) % 60000ll);
+
+    if (queued_image_stamp < detections.back().time)
+    {
+      // consume image
+      this->image_queue_.pop();
+    }
+    else
+    {
+      if (queued_image_stamp == detections.back().time)
+      {
+        cv_image = this->image_queue_.front();
+
+        this->image_queue_.pop();
+      }
+
+      break;
+    }
+  }
+
+  pthread_mutex_unlock(&mutex_image);
+
+  // Merge
+  draw_image(cv_image, msg);
+
+  cv::imshow("Result image", cv_image->image);
+  cv::waitKey(10);
+}
+
+void* Merger::receive_thread(void* arg)
+{
+  static_cast<Merger*>(arg)->can_receive();
+  return nullptr;
+}
+
+void* Merger::show_thread(void* arg)
+{
+  static_cast<Merger*>(arg)->can_show();
+  return nullptr;
+}
+
+void Merger::draw_image(cv_bridge::CvImagePtr cv_image, rtx_msg_interface::msg::BoundingBoxes& msg)
+{
+  for (size_t i = 0; i < msg.bounding_boxes.size(); i++) {
     // Get rectangle from 1 object
-    cv::Rect r = cv::Rect(round(msg->bounding_boxes[i].left - msg->bounding_boxes[i].top),
-                          round(msg->bounding_boxes[i].right - msg->bounding_boxes[i].bot),
-                          round(2 * msg->bounding_boxes[i].top),
-                          round(2 * msg->bounding_boxes[i].bot));
+    cv::Rect r = cv::Rect(round(msg.bounding_boxes[i].left - msg.bounding_boxes[i].top),
+                          round(msg.bounding_boxes[i].right - msg.bounding_boxes[i].bot),
+                          round(2 * msg.bounding_boxes[i].top),
+                          round(2 * msg.bounding_boxes[i].bot));
 
     // draw_box
     cv::rectangle(cv_image->image, r, cv::Scalar(0x27, 0xC1, 0x36), 2);
 
     // put id
-    cv::putText(cv_image->image, std::to_string(static_cast<int>(msg->bounding_boxes[i].id)), cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
+    cv::putText(cv_image->image, std::to_string(static_cast<int>(msg.bounding_boxes[i].id)), cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
   }
 }
 

@@ -8,6 +8,8 @@
 #include <cmath>
 #include <ctime>
 #include <fstream>
+#include <pthread.h>
+#include <mutex>
 
 // ROS
 #include "rclcpp/rclcpp.hpp"
@@ -35,6 +37,10 @@
 #include "rtx_msg_interface/msg/bounding_box.hpp"
 #include "rtx_msg_interface/msg/bounding_boxes.hpp"
 
+// Can
+#include "pcan/ObjectDetectionsReceiver.hpp"
+#include "merger/types.h"
+
 
 class Merger : public rclcpp::Node
 {
@@ -43,14 +49,34 @@ public:
   ~Merger();
 
 private:
+  std::shared_ptr<ObjectDetectionsReceiver> can_receiver_;
+
   void callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg);
   void image_callback(const sensor_msgs::msg::Image::SharedPtr image);
-  void draw_image(cv_bridge::CvImagePtr cv_image, rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg);
+  void draw_image(cv_bridge::CvImagePtr cv_image, rtx_msg_interface::msg::BoundingBoxes& msg);
 
   rclcpp::Subscription<rtx_msg_interface::msg::BoundingBoxes>::SharedPtr result_subscriber_;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscriber_;
 
+  void can_receive();
+  void can_show();
+  static void* receive_thread(void* arg);
+  static void* show_thread(void* arg);
+
+  // Shared Resource
   std::queue<cv_bridge::CvImagePtr> image_queue_;
+  std::vector<ObjectDetection> detections_;
+  std::vector<std::vector<ObjectDetection>> detections_per_node_;
+
+  int number_of_nodes_;
+  bool use_can_ = true;
+
+  // pthread
+  pthread_mutex_t mutex;
+  pthread_mutex_t mutex_image;
+  pthread_cond_t cond;
+  pthread_t thread_receive;
+  pthread_t thread_show;
 
   // benchmark
   bool use_benchmark_;

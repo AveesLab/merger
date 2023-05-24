@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-only */
 /*
- * 03_ManualRead.h - PCANBasic Example: ManualRead
+ * 03_ObjectDetectionsReceiver.h - PCANBasic Example: ObjectDetectionsReceiver
  *
  * Copyright (C) 2001-2020  PEAK System-Technik GmbH <www.peak-system.com>
  *
@@ -24,8 +24,10 @@
  */
 #include "linux_interop.h"
 #include "PCANBasic.h"
+#include "merger/types.h"
+#include <vector>
 
-class ManualRead
+class ObjectDetectionsReceiver
 {
 private:
 	/// <summary>
@@ -48,13 +50,15 @@ private:
 	TPCANBitrateFD BitrateFD = const_cast<LPSTR>("f_clock_mhz=20, nom_brp=5, nom_tseg1=2, nom_tseg2=1, nom_sjw=1, data_brp=2, data_tseg1=3, data_tseg2=1, data_sjw=1");
 
 public:
-	// ManualRead constructor
+	// ObjectDetectionsReceiver constructor
 	//
-	ManualRead();
+	ObjectDetectionsReceiver();
 
-	// ManualRead destructor
+	// ObjectDetectionsReceiver destructor
 	//
-	~ManualRead();
+	~ObjectDetectionsReceiver();
+
+	int GetMessage(ObjectDetection& detection);
 
 private:
 	/// <summary>
@@ -87,11 +91,6 @@ private:
 	/// <param name="msg">The received PCAN-Basic CAN-FD message</param>
 	/// <param name="itsTimeStamp">Timestamp of the message as microseconds (ulong)</param>
 	void ProcessMessageCanFD(TPCANMsgFD msg, TPCANTimestampFD itsTimeStamp);
-
-	/// <summary>
-	/// Shows/prints the configurable parameters for this sample and information about them
-	/// </summary>
-	void ShowConfigurationHelp();
 
 	/// <summary>
 	/// Shows/prints the configured paramters
@@ -140,13 +139,13 @@ private:
 	/// <returns>The type of the CAN message as string</returns>
 	std::string GetMsgTypeString(TPCANMessageType msgType);
 
-	/// <summary>
-	/// Gets the string representation of the ID of a CAN message
-	/// </summary>
-	/// <param name="id">Id to be parsed</param>
-	/// <param name="msgType">Type flags of the message the Id belong</param>
-	/// <returns>Hexadecimal representation of the ID of a CAN message</returns>
-	std::string GetIdString(UINT32 id, TPCANMessageType msgType);
+	// /// <summary>
+	// /// Gets the string representation of the ID of a CAN message
+	// /// </summary>
+	// /// <param name="id">Id to be parsed</param>
+	// /// <param name="msgType">Type flags of the message the Id belong</param>
+	// /// <returns>Hexadecimal representation of the ID of a CAN message</returns>
+	// std::string GetIdString(UINT32 id, TPCANMessageType msgType);
 
 	/// <summary>
 	/// Gets the data length of a CAN message
@@ -155,12 +154,12 @@ private:
 	/// <returns>Data length as integer represented by the given DLC code</returns>
 	int GetLengthFromDLC(BYTE dlc);
 
-	/// <summary>
-	/// Gets the string representation of the timestamp of a CAN message, in milliseconds
-	/// </summary>
-	/// <param name="time">Timestamp in microseconds</param>
-	/// <returns>String representing the timestamp in milliseconds</returns>
-	std::string GetTimeString(TPCANTimestampFD time);
+	// /// <summary>
+	// /// Gets the string representation of the timestamp of a CAN message, in milliseconds
+	// /// </summary>
+	// /// <param name="time">Timestamp in microseconds</param>
+	// /// <returns>String representing the timestamp in milliseconds</returns>
+	// std::string GetTimeString(TPCANTimestampFD time);
 
 	/// <summary>
 	/// Gets the data of a CAN message as a string
