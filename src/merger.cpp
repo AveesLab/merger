@@ -12,12 +12,9 @@ Merger::Merger()
   // Subscriber
   using std::placeholders::_1;
   this->result_subscriber_ = this->create_subscription<rtx_msg_interface::msg::BoundingBoxes>("/cluster/result", QOS_RKL10V, std::bind(&Merger::callback, this, _1));
-  this->image_subscriber_ = this->create_subscription<sensor_msgs::msg::Image>("camera/raw_image", QOS_RKL10V, std::bind(&Merger::image_callback, this, _1));
+  this->image_subscriber_ = this->create_subscription<sensor_msgs::msg::Image>("/camera/raw_image", QOS_RKL10V, std::bind(&Merger::image_callback, this, _1));
 
   this->benchmark();
-
-  // Information
-  RCLCPP_INFO(this->get_logger(), "Initialization Finish.");
 
   if (use_can_)
   {
@@ -34,20 +31,28 @@ Merger::Merger()
     pthread_create(&thread_show, NULL, show_thread, this);
   }
 
+  // Information
+  RCLCPP_INFO(this->get_logger(), "Initialization Finish.");
 }
 
 Merger::~Merger()
 {
+  std::cerr << "Destroy Start.\n";
+
+  this->finish_benchmark();
+
+  std::cerr << "Benchmark fin.\n";
+
   if (use_can_)
   {
-    pthread_join(thread_receive, NULL);
-    pthread_join(thread_show, NULL);
+    run_flag_ = false;
 
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&cond);
-  }
 
-  this->finish_benchmark();
+    pthread_join(thread_receive, NULL);
+    pthread_join(thread_show, NULL);
+  }
 }
 
 void Merger::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
@@ -69,7 +74,7 @@ void Merger::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
 
     this->image_queue_.push(tmp_cv_image);
 
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&mutex_image);
   }
   else
   {
@@ -79,52 +84,83 @@ void Merger::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
 
 void Merger::callback(const rtx_msg_interface::msg::BoundingBoxes::SharedPtr msg)
 {
+  // benchmark
+  if (use_benchmark_) {
+    // beforegetdetections / aftergetdetections
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+  }
+
   rclcpp::Time received_result_image_stamp = rclcpp::Time(msg->image_header.stamp);
+
+  // benchmark
+  if (use_benchmark_) {
+    // beforeselectimage
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+  }
 
   while (this->image_queue_.size())
   {
     rclcpp::Time queued_image_stamp = rclcpp::Time(this->image_queue_.front()->header.stamp);
-
-    if (use_benchmark_) {
-      this->file_ << static_cast<long long int>(queued_image_stamp.seconds() * 1000000.0) << ",";
-    }
 
     if (queued_image_stamp < received_result_image_stamp)
     {
       // consume image
       this->image_queue_.pop();
 
-      if (use_benchmark_) {
-        this->file_ << 0 << ",";
-      }
-
       // Information
       RCLCPP_INFO(this->get_logger(), "Comsume Image.");
     }
     else
     {
+      // benchmark
+      if (use_benchmark_) {
+        // afterselectimage
+        this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+      }
+
       if (queued_image_stamp == received_result_image_stamp)
       {
+        // benchmark
+        if (use_benchmark_) {
+          // isshowimage
+          this->file_ << static_cast<long long int>(1) << ",";
+        }
+
         draw_image(this->image_queue_.front(), *msg);
+
+        // benchmark
+        if (use_benchmark_) {
+          // afterdrawimage
+          this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+        }
 
         cv::imshow("Result image", this->image_queue_.front()->image);
         cv::waitKey(10);
 
         this->image_queue_.pop();
 
-        if (use_benchmark_) {
-          this->file_ << 1 << ",";
-        }
-
         RCLCPP_INFO(this->get_logger(), "Show Detected Image.");
+
+        // benchmark
+        if (use_benchmark_) {
+          // endpoint
+          this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+          // timestamp
+          this->file_ << static_cast<long long int>(queued_image_stamp.seconds() * 1000000.0) << "\n";
+        }
+      }
+      else
+      {
+        // benchmark
+        if (use_benchmark_) {
+          // isshowimage
+          this->file_ << static_cast<long long int>(0) << "\n";
+        }
       }
 
       break;
     }
-  }
-
-  if (use_benchmark_) {
-    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << "\n";
   }
 }
 
@@ -135,7 +171,22 @@ void Merger::can_receive()
 
   node_index = this->can_receiver_->GetMessage(detection);
 
-  if (node_index == -1)
+  if (detection.id == -1)
+  {
+    pthread_mutex_lock(&mutex);
+
+    if (this->detections_per_node_[node_index].size())
+    {
+      std::vector<ObjectDetection>().swap(this->detections_);
+      this->detections_per_node_[node_index].push_back(detection);
+      this->detections_.swap(this->detections_per_node_[node_index]);
+
+      pthread_cond_signal(&cond);
+    }
+
+    pthread_mutex_unlock(&mutex);
+  }
+  else
   {
     pthread_mutex_lock(&mutex);
 
@@ -143,96 +194,137 @@ void Merger::can_receive()
 
     pthread_mutex_unlock(&mutex);
   }
-  // else if (node_index == -2)
-  // {
 
-  // }
-  else
-  {
-    pthread_mutex_lock(&mutex);
-
-    if (this->detections_.size())
-    {
-      std::vector<ObjectDetection>().swap(this->detections_);
-    }
-
-    this->detections_.swap(this->detections_per_node_[node_index]);
-
-    pthread_cond_signal(&cond);
-
-    pthread_mutex_unlock(&mutex);
-  }
-
+  usleep(300);
 }
 
 void Merger::can_show()
 {
-  // Result
+  // // Result
   pthread_mutex_lock(&mutex);
 
   pthread_cond_wait(&cond, &mutex);
 
+  // benchmark
+  if (use_benchmark_) {
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+  }
+
   std::vector<ObjectDetection> detections;
   detections.swap(this->detections_);
 
-  pthread_mutex_unlock(&mutex); 
+  pthread_mutex_unlock(&mutex);
 
   rtx_msg_interface::msg::BoundingBoxes msg;
 
-  for (size_t object_index = 0; object_index < detections.size() - 1; object_index++)
+  for (int object_index = 0; object_index < static_cast<int>(detections.size()) - 1; object_index++)
   {
-    msg.bounding_boxes[object_index].id = detections[object_index].id;
-    msg.bounding_boxes[object_index].left = detections[object_index].center_x;
-    msg.bounding_boxes[object_index].right = detections[object_index].center_y;
-    msg.bounding_boxes[object_index].top = detections[object_index].width_half;
-    msg.bounding_boxes[object_index].bot = detections[object_index].height_half;
+    rtx_msg_interface::msg::BoundingBox msg_part;
+    
+    msg_part.id = detections[object_index].id;
+    msg_part.left = detections[object_index].center_x;
+    msg_part.right = detections[object_index].center_y;
+    msg_part.top = detections[object_index].width_half;
+    msg_part.bot = detections[object_index].height_half;
+
+    msg.bounding_boxes.push_back(msg_part);
+  }
+
+  // benchmark
+  if (use_benchmark_) {
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
   }
 
   // Image
-  cv_bridge::CvImagePtr cv_image;
+  cv_bridge::CvImagePtr cv_image = nullptr;
 
   pthread_mutex_lock(&mutex_image);
+
+  // benchmark
+  if (use_benchmark_) {
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+  }
 
   while (this->image_queue_.size())
   {
     int queued_image_stamp = static_cast<int>(static_cast<long long int>(rclcpp::Time(this->image_queue_.front()->header.stamp).seconds() * 1000.0) % 60000ll);
 
-    if (queued_image_stamp < detections.back().time)
+    if (queued_image_stamp != detections.back().time)
     {
       // consume image
-      this->image_queue_.pop();
+      if (queued_image_stamp > detections.back().time + 30000)
+      {
+        this->image_queue_.pop();
+      }
+      if (queued_image_stamp < detections.back().time)
+      {
+        this->image_queue_.pop();
+      }
+      if ((queued_image_stamp > detections.back().time) && (queued_image_stamp < detections.back().time + 30000))
+      {
+        break;
+      }
     }
     else
     {
-      if (queued_image_stamp == detections.back().time)
-      {
-        cv_image = this->image_queue_.front();
+      cv_image = this->image_queue_.front();
 
-        this->image_queue_.pop();
-      }
-
-      break;
+      this->image_queue_.pop();
     }
   }
 
   pthread_mutex_unlock(&mutex_image);
 
   // Merge
+  if (cv_image == nullptr)
+  {
+    // benchmark
+    if (use_benchmark_) {
+      this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+      this->file_ << static_cast<long long int>(0) << "\n";
+    }
+
+    return;
+  }
+
+  // benchmark
+  if (use_benchmark_) {
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+    this->file_ << static_cast<long long int>(1) << ",";
+  }
+
   draw_image(cv_image, msg);
+
+  // benchmark
+  if (use_benchmark_) {
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+  }
 
   cv::imshow("Result image", cv_image->image);
   cv::waitKey(10);
+
+  // benchmark
+  if (use_benchmark_) {
+    this->file_ << static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0) << ",";
+    this->file_ << static_cast<long long int>(rclcpp::Time(cv_image->header.stamp).seconds() * 1000000.0) << "\n";
+  }
 }
 
 void* Merger::receive_thread(void* arg)
 {
-  static_cast<Merger*>(arg)->can_receive();
+  while (run_flag_)
+  {
+    static_cast<Merger*>(arg)->can_receive();
+  }
   return nullptr;
 }
 
 void* Merger::show_thread(void* arg)
 {
-  static_cast<Merger*>(arg)->can_show();
+  while (run_flag_)
+  {
+    static_cast<Merger*>(arg)->can_show();
+  }
   return nullptr;
 }
 
@@ -256,7 +348,7 @@ void Merger::draw_image(cv_bridge::CvImagePtr cv_image, rtx_msg_interface::msg::
 // benchmark
 void Merger::benchmark()
 {
-  use_benchmark_ = this->declare_parameter("use_benchmark", false);
+  use_benchmark_ = this->declare_parameter("use_benchmark", true);
 
   if (use_benchmark_)
   {
@@ -267,9 +359,11 @@ void Merger::benchmark()
     pTime_info = localtime(&raw_time);
 
     std::string simulation_time = std::to_string(pTime_info->tm_mon + 1) + "_" + std::to_string(pTime_info->tm_mday) + "_" + std::to_string(pTime_info->tm_hour) + "_" + std::to_string(pTime_info->tm_min) + "_" + std::to_string(pTime_info->tm_sec);
-    std::string directory = "./data/cluster_inference/" + simulation_time + ".csv";
+    std::string directory = "./data/merge/" + simulation_time + ".csv";
 
     this->file_.open(directory.c_str(), std::ios_base::out | std::ios_base::app);
+
+    this->file_ << "beforegetdetections,aftergetdetections,beforeselectimage,afterselectimage,isshowimage,afterdrawimage,endpoint,timestamp\n";
   }
 }
 

@@ -42,11 +42,16 @@
 #include "merger/types.h"
 
 
+bool run_flag_ = true;
+
 class Merger : public rclcpp::Node
 {
 public:
   explicit Merger();
   ~Merger();
+
+  void can_receive();
+  void can_show();
 
 private:
   std::shared_ptr<ObjectDetectionsReceiver> can_receiver_;
@@ -58,8 +63,6 @@ private:
   rclcpp::Subscription<rtx_msg_interface::msg::BoundingBoxes>::SharedPtr result_subscriber_;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscriber_;
 
-  void can_receive();
-  void can_show();
   static void* receive_thread(void* arg);
   static void* show_thread(void* arg);
 
@@ -68,7 +71,7 @@ private:
   std::vector<ObjectDetection> detections_;
   std::vector<std::vector<ObjectDetection>> detections_per_node_;
 
-  int number_of_nodes_;
+  int number_of_nodes_ = 200;
   bool use_can_ = true;
 
   // pthread

@@ -91,14 +91,16 @@ int ObjectDetectionsReceiver::GetMessage(ObjectDetection& detection)
 			detection.width_half = ((CANMsg.DATA[5] & 7) << 7) | (CANMsg.DATA[6] >>1);
 			detection.height_half = ((CANMsg.DATA[6] & 1) << 8) | CANMsg.DATA[7];
 
-			return -1;
+			return static_cast<int>(CANMsg.ID);
 		}
 		else if (CANMsg.LEN == 2)
 		{
 			detection.time = (CANMsg.DATA[0] << 8) | CANMsg.DATA[1];
+			detection.id = -1;
 
-			return CANMsg.ID;
+			return static_cast<int>(CANMsg.ID);
 		}
+
 	}
 }
 
