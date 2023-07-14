@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-only */
 /*
- * 03_ObjectDetectionsReceiver.cpp - PCANBasic Example: ObjectDetectionsReceiver
+ * 03_CanReceiver.cpp - PCANBasic Example: CanReceiver
  *
  * Copyright (C) 2001-2020  PEAK System-Technik GmbH <www.peak-system.com>
  *
@@ -22,9 +22,9 @@
  * Maintainer:  Fabrice Vergnaud <f.vergnaud@peak-system.com>
  * 	    	    Romain Tissier <r.tissier@peak-system.com>
  */
-#include "pcan/ObjectDetectionsReceiver.hpp"
+#include "can/canreceiver.hpp"
 
-ObjectDetectionsReceiver::ObjectDetectionsReceiver()
+CanReceiver::CanReceiver()
 {
 	ShowCurrentConfiguration(); // Shows the current parameters configuration
 
@@ -44,17 +44,14 @@ ObjectDetectionsReceiver::ObjectDetectionsReceiver()
 		std::cout << "Press any key to continue...\n";
 		return;
 	}
-
-	// Reading messages...
-	std::cout << "Successfully initialized.\n";
 }
 
-ObjectDetectionsReceiver::~ObjectDetectionsReceiver()
+CanReceiver::~CanReceiver()
 {
 	CAN_Uninitialize(PCAN_NONEBUS);
 }
 
-void ObjectDetectionsReceiver::ReadMessages()
+void CanReceiver::ReadMessages()
 {
 	TPCANStatus stsResult;
 
@@ -71,7 +68,7 @@ void ObjectDetectionsReceiver::ReadMessages()
 	} while (!(stsResult & PCAN_ERROR_QRCVEMPTY));
 }
 
-int ObjectDetectionsReceiver::GetMessage(ObjectDetection& detection)
+int CanReceiver::GetMessage(ObjectDetection& detection)
 {
 	TPCANMsg CANMsg;
 	TPCANTimestamp CANTimeStamp;
@@ -101,62 +98,64 @@ int ObjectDetectionsReceiver::GetMessage(ObjectDetection& detection)
 			return static_cast<int>(CANMsg.ID);
 		}
 
+		else if (CANMsg.LEN  == 1)
+		{
+			detection.id = -2;
+
+			return static_cast<int>(CANMsg.ID);
+		}
+
 	}
 }
 
-TPCANStatus ObjectDetectionsReceiver::ReadMessageFD()
+TPCANStatus CanReceiver::SendMessage(std::vector<int>& base_timestamp_)
+{
+	TPCANMsg msgCanMessage;
+	msgCanMessage.ID = 50;
+	msgCanMessage.LEN = (BYTE)3;
+	msgCanMessage.MSGTYPE = PCAN_MESSAGE_EXTENDED;
+	
+	for (int i = 0; i < static_cast<int>(base_timestamp_.size()); i++)
+	{
+		int timestamp = static_cast<int>(base_timestamp_[i]);
+		msgCanMessage.DATA[0] = i;
+		msgCanMessage.DATA[1] = timestamp >> 8;
+		msgCanMessage.DATA[2] = timestamp;
+	}
+
+	TPCANStatus stsResult = CAN_Write(PcanHandle, &msgCanMessage);
+	
+	if (stsResult != PCAN_ERROR_OK)
+	{
+	std::cerr << "send sync message error!" << std::endl;
+	}
+
+	return stsResult;
+}
+
+TPCANStatus CanReceiver::ReadMessageFD()
 {
 	TPCANMsgFD CANMsg;
 	TPCANTimestampFD CANTimeStamp;
 
 	// We execute the "Read" function of the PCANBasic
 	TPCANStatus stsResult = CAN_ReadFD(PcanHandle, &CANMsg, &CANTimeStamp);
-	if (stsResult != PCAN_ERROR_QRCVEMPTY)
-		// We process the received message
-		ProcessMessageCanFD(CANMsg, CANTimeStamp);
 
 	return stsResult;
 }
 
-TPCANStatus ObjectDetectionsReceiver::ReadMessage()
+TPCANStatus CanReceiver::ReadMessage()
 {
 	TPCANMsg CANMsg;
 	TPCANTimestamp CANTimeStamp;
 
 	// We execute the "Read" function of the PCANBasic
 	TPCANStatus stsResult = CAN_Read(PcanHandle, &CANMsg, &CANTimeStamp);
-	if (stsResult != PCAN_ERROR_QRCVEMPTY)
-		// We process the received message
-		ProcessMessageCan(CANMsg, CANTimeStamp);
 
 	return stsResult;
 }
 
-void ObjectDetectionsReceiver::ProcessMessageCan(TPCANMsg msg, TPCANTimestamp itsTimeStamp)
-{
-	// UINT64 microsTimestamp = ((UINT64)itsTimeStamp.micros + 1000 * (UINT64)itsTimeStamp.millis + 0x100000000 * 1000 * itsTimeStamp.millis_overflow);
-
-	// std::cout << "Type: " << GetMsgTypeString(msg.MSGTYPE) << "\n";
-	// std::cout << "ID: " << GetIdString(msg.ID, msg.MSGTYPE) << "\n";
-	// char result[MAX_PATH] = { 0 };
-	// sprintf_s(result, sizeof(result), "%i", msg.LEN);
-	// std::cout << "Length: " << result << "\n";
-	// std::cout << "Time: " << GetTimeString(microsTimestamp) << "\n";
-	// std::cout << "Data: " << GetDataString(msg.DATA, msg.MSGTYPE, msg.LEN) << "\n";
-	// std::cout << "----------------------------------------------------------\n";
-}
-
-void ObjectDetectionsReceiver::ProcessMessageCanFD(TPCANMsgFD msg, TPCANTimestampFD itsTimeStamp)
-{
-	// std::cout << "Type: " << GetMsgTypeString(msg.MSGTYPE) << "\n";
-	// std::cout << "ID: " << GetIdString(msg.ID, msg.MSGTYPE) << "\n";
-	// std::cout << "Length: " << GetLengthFromDLC(msg.DLC) << "\n";
-	// std::cout << "Time: " << GetTimeString(itsTimeStamp) << "\n";
-	// std::cout << "Data: " << GetDataString(msg.DATA, msg.MSGTYPE, GetLengthFromDLC(msg.DLC)) << "\n";
-	// std::cout << "----------------------------------------------------------\n";
-}
-
-void ObjectDetectionsReceiver::ShowCurrentConfiguration()
+void CanReceiver::ShowCurrentConfiguration()
 {
 	std::cout << "Parameter values used\n";
 	std::cout << "----------------------\n";
@@ -173,7 +172,7 @@ void ObjectDetectionsReceiver::ShowCurrentConfiguration()
 	std::cout << "\n";
 }
 
-void ObjectDetectionsReceiver::ShowStatus(TPCANStatus status)
+void CanReceiver::ShowStatus(TPCANStatus status)
 {
 	std::cout << "=========================================================================================\n";
 	char buffer[MAX_PATH];
@@ -182,7 +181,7 @@ void ObjectDetectionsReceiver::ShowStatus(TPCANStatus status)
 	std::cout << "=========================================================================================\n";
 }
 
-void ObjectDetectionsReceiver::FormatChannelName(TPCANHandle handle, LPSTR buffer, bool isFD)
+void CanReceiver::FormatChannelName(TPCANHandle handle, LPSTR buffer, bool isFD)
 {
 	TPCANDevice devDevice;
 	BYTE byChannel;
@@ -208,7 +207,7 @@ void ObjectDetectionsReceiver::FormatChannelName(TPCANHandle handle, LPSTR buffe
 		sprintf_s(buffer, MAX_PATH, "%s %d (%Xh)", handleBuffer, byChannel, handle);
 }
 
-void ObjectDetectionsReceiver::GetTPCANHandleName(TPCANHandle handle, LPSTR buffer)
+void CanReceiver::GetTPCANHandleName(TPCANHandle handle, LPSTR buffer)
 {
 	strcpy_s(buffer, MAX_PATH, "PCAN_NONE");
 	switch (handle)
@@ -276,7 +275,7 @@ void ObjectDetectionsReceiver::GetTPCANHandleName(TPCANHandle handle, LPSTR buff
 	}
 }
 
-void ObjectDetectionsReceiver::GetFormattedError(TPCANStatus error, LPSTR buffer)
+void CanReceiver::GetFormattedError(TPCANStatus error, LPSTR buffer)
 {
 	// Gets the text using the GetErrorText API function. If the function success, the translated error is returned.
 	// If it fails, a text describing the current error is returned.
@@ -284,7 +283,7 @@ void ObjectDetectionsReceiver::GetFormattedError(TPCANStatus error, LPSTR buffer
 		sprintf_s(buffer, MAX_PATH, "An error occurred. Error-code's text (%Xh) couldn't be retrieved", error);
 }
 
-void ObjectDetectionsReceiver::ConvertBitrateToString(TPCANBaudrate bitrate, LPSTR buffer)
+void CanReceiver::ConvertBitrateToString(TPCANBaudrate bitrate, LPSTR buffer)
 {
 	switch (bitrate)
 	{
@@ -336,7 +335,7 @@ void ObjectDetectionsReceiver::ConvertBitrateToString(TPCANBaudrate bitrate, LPS
 	}
 }
 
-std::string ObjectDetectionsReceiver::GetMsgTypeString(TPCANMessageType msgType)
+std::string CanReceiver::GetMsgTypeString(TPCANMessageType msgType)
 {
 	if ((msgType & PCAN_MESSAGE_STATUS) == PCAN_MESSAGE_STATUS)
 		return "STATUS";
@@ -368,19 +367,7 @@ std::string ObjectDetectionsReceiver::GetMsgTypeString(TPCANMessageType msgType)
 	return strTemp;
 }
 
-// std::string ObjectDetectionsReceiver::GetIdString(UINT32 id, TPCANMessageType msgType)
-// {
-// 	char result[MAX_PATH] = { 0 };
-// 	if ((msgType & PCAN_MESSAGE_EXTENDED) == PCAN_MESSAGE_EXTENDED)
-// 	{
-// 		sprintf_s(result, sizeof(result), "%08Xh", id);
-// 		return result;
-// 	}
-// 	sprintf_s(result, sizeof(result), "%03Xh", id);
-// 	return result;
-// }
-
-int ObjectDetectionsReceiver::GetLengthFromDLC(BYTE dlc)
+int CanReceiver::GetLengthFromDLC(BYTE dlc)
 {
 	switch (dlc)
 	{
@@ -395,15 +382,7 @@ int ObjectDetectionsReceiver::GetLengthFromDLC(BYTE dlc)
 	}
 }
 
-// std::string ObjectDetectionsReceiver::GetTimeString(TPCANTimestampFD time)
-// {
-// 	char result[MAX_PATH] = { 0 };
-// 	double fTime = (time / 1000.0);
-// 	sprintf_s(result, sizeof(result), "%.1f", fTime);
-// 	return result;
-// }
-
-std::string ObjectDetectionsReceiver::GetDataString(BYTE data[], TPCANMessageType msgType, int dataLength)
+std::string CanReceiver::GetDataString(BYTE data[], TPCANMessageType msgType, int dataLength)
 {
 	if ((msgType & PCAN_MESSAGE_RTR) == PCAN_MESSAGE_RTR)
 		return "Remote Request";
