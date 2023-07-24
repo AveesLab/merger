@@ -16,6 +16,7 @@
 #include "std_msgs/msg/header.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/compressed_image.hpp"
+#include "vision_msgs/msg/detection2_d_array.hpp"
 #include <cv_bridge/cv_bridge.h>
 
 // OpenCV
@@ -33,10 +34,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/header.hpp"
 
-// Can
-#include "can/canreceiver.hpp"
-#include "monitor/types.h"
-
 
 class MonitorDemo : public rclcpp::Node
 {
@@ -44,36 +41,17 @@ public:
   explicit MonitorDemo();
   ~MonitorDemo();
 
-  void can_receive();
-  void can_show();
-
 private:
-  std::shared_ptr<CanReceiver> can_receiver_;
-
   void image_callback(const sensor_msgs::msg::Image::SharedPtr image);
-  void draw_image(cv_bridge::CvImagePtr cv_image, std::vector<ObjectDetection>& detections);
+  void detections_receive(const vision_msgs::msg::Detection2DArray::SharedPtr detections);
+  void draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::msg::Detection2DArray::SharedPtr detections);
 
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscriber_;
-
-  static void* receive_thread(void* arg);
-  static void* show_thread(void* arg);
-
-  bool run_flag_;
+  rclcpp::Subscription<vision_msgs::msg::Detection2DArray>::SharedPtr detections_subscriber_;
 
   // Shared Resource
   std::queue<cv_bridge::CvImagePtr> image_queue_;
-  std::vector<ObjectDetection> detections_;
-  std::vector<std::vector<ObjectDetection>> detections_per_node_;
 
-  std::vector<int> base_timestamp_;
-
-  int number_of_nodes_ = 200;
-
-  // pthread
-  pthread_mutex_t mutex;
+  // mutex
   pthread_mutex_t mutex_image;
-  pthread_cond_t cond;
-  pthread_t thread_receive;
-  pthread_t thread_show;
 };
-

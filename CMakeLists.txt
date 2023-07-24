@@ -24,6 +24,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(vision_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(Threads REQUIRED)
 
@@ -35,15 +36,17 @@ ament_target_dependencies(demo_node
   rclcpp
   std_msgs
   sensor_msgs
+  vision_msgs
   cv_bridge
   Threads
 )
 
-add_library(demo_library SHARED src/demo.cpp include/can/canreceiver.cpp)
+add_library(demo_library SHARED src/demo.cpp)
 ament_target_dependencies(demo_library
   rclcpp
   std_msgs
   sensor_msgs
+  vision_msgs
   cv_bridge
   Threads
 )
