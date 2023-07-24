@@ -38,7 +38,7 @@ MonitorDemo::MonitorDemo()
 
 MonitorDemo::~MonitorDemo()
 {
-  std::cerr << "[Demo] Terminate system.\n";
+  std::cerr << "[Demo] Press Ctrl+C to terminate system.\n";
 
   this->run_flag_ = false;
 
