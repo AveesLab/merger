@@ -14,7 +14,8 @@ CameraDemo::CameraDemo()
   std::string topic_name = "/toy_image" + std::to_string(this->node_index_);
 
   // Publisher
-  this->image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>(topic_name , 1);
+  rclcpp::QoS qos(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_system_default));
+  this->image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>(topic_name , qos);
 
   // Timer
   this->timer_ = this->create_wall_timer(std::chrono::milliseconds(this->period_), std::bind(&CameraDemo::timer_callback, this));
