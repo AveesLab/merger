@@ -24,36 +24,45 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(vision_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(Threads REQUIRED)
 
 include_directories(include)
 
 # Build
-add_executable(demo_node src/exec/demo_exec.cpp)
-ament_target_dependencies(demo_node
+add_executable(pub_demo src/exec/pub_exec.cpp)
+ament_target_dependencies(pub_demo
   rclcpp
   std_msgs
   sensor_msgs
-  vision_msgs
   cv_bridge
   Threads
 )
 
-add_library(demo_library SHARED src/demo.cpp)
+add_executable(sub_demo src/exec/sub_exec.cpp)
+ament_target_dependencies(sub_demo
+  rclcpp
+  std_msgs
+  sensor_msgs
+  cv_bridge
+  Threads
+)
+
+add_library(demo_library SHARED src/pub.cpp src/sub.cpp)
 ament_target_dependencies(demo_library
   rclcpp
   std_msgs
   sensor_msgs
-  vision_msgs
   cv_bridge
   Threads
 )
 
-target_link_libraries(demo_node
+target_link_libraries(pub_demo
   demo_library
-  pcanbasic
+)
+
+target_link_libraries(sub_demo
+  demo_library
 )
 
 install(TARGETS
@@ -64,8 +73,14 @@ install(TARGETS
 )
 
 install(TARGETS
-  demo_node
+  pub_demo
+  sub_demo
   DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
