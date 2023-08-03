@@ -18,7 +18,7 @@ def generate_launch_description():
         name = 'camera',
         output = 'screen',
         parameters = [
-            {"period": 33},
+            {"period": 30},
             {"video_path": "/home/avees/ros2_ws/video/test.mp4"},
             {"node_index": 1},
         ]

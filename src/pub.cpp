@@ -21,6 +21,7 @@ CameraDemo::CameraDemo()
 
   // Get images
   this->cap_ = cv::VideoCapture(this->video_path_);
+  this->frame_id_ = 0;
 
   int total_frames = this->cap_.get(cv::CAP_PROP_FRAME_COUNT);
   cv::Mat frame;
@@ -29,7 +30,7 @@ CameraDemo::CameraDemo()
   while(cap_.read(frame)) {
     cv_bridge::CvImage cv_image;
     cv_image.encoding = "bgr8";
-    cv_image.image = frame;
+    cv_image.image = frame.clone();
     frames_.push_back(cv_image);
 
     current_frame++;
@@ -49,8 +50,12 @@ void CameraDemo::timer_callback()
 {
   if (frame_id_ < frames_.size()) {
     frames_[frame_id_].header.stamp = now();
-    frames_[frame_id_].header.frame_id = std::to_string(frame_id_++);
+    frames_[frame_id_].header.frame_id = std::to_string(frame_id_);
     auto msg = frames_[frame_id_].toImageMsg();
+    RCLCPP_INFO(this->get_logger(), "Publish #%d -th image", frame_id_);
     image_publisher_->publish(*msg);
+    frame_id_++;
+  } else {
+    frame_id_ = 0;
   }
 }

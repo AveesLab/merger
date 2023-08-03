@@ -7,12 +7,10 @@ MonitorDemo::MonitorDemo()
   // Information
   RCLCPP_INFO(this->get_logger(), "Initialization Start.");
 
-  rclcpp::QoS QOS_RKL10V = rclcpp::QoS(rclcpp::KeepLast(10)).durability_volatile();
-
   // Subscriber
   using std::placeholders::_1;
-  this->image_subscriber1_ = this->create_subscription<sensor_msgs::msg::Image>("/toy_image1", QOS_RKL10V, std::bind(&MonitorDemo::image_callback1, this, _1));
-  this->image_subscriber2_ = this->create_subscription<sensor_msgs::msg::Image>("/toy_image2", QOS_RKL10V, std::bind(&MonitorDemo::image_callback2, this, _1));
+  this->image_subscriber1_ = this->create_subscription<sensor_msgs::msg::Image>("/toy_image1", rclcpp::SensorDataQoS(), std::bind(&MonitorDemo::image_callback1, this, _1));
+  this->image_subscriber2_ = this->create_subscription<sensor_msgs::msg::Image>("/toy_image2", rclcpp::SensorDataQoS(), std::bind(&MonitorDemo::image_callback2, this, _1));
 
   // Information
   RCLCPP_INFO(this->get_logger(), "[Demo] Finish initialization.");
