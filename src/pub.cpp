@@ -28,6 +28,9 @@ CameraDemo::CameraDemo()
   int current_frame = 0;
 
   while(cap_.read(frame)) {
+    // Resize the frame to 640x480 before storing
+    cv::resize(frame, frame, cv::Size(640, 480));
+    
     cv_bridge::CvImage cv_image;
     cv_image.encoding = "bgr8";
     cv_image.image = frame.clone();
