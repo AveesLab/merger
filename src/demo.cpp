@@ -32,12 +32,29 @@ MonitorDemo::MonitorDemo()
   pthread_create(&thread_receive, NULL, receive_thread, this);
   pthread_create(&thread_show, NULL, show_thread, this);
 
+  // Benchmark
+  time_t raw_time;
+  struct tm* pTime_info;
+
+  raw_time = time(NULL);
+  pTime_info = localtime(&raw_time);
+
+  std::string simulation_time = std::to_string(pTime_info->tm_mon + 1) + "_" + std::to_string(pTime_info->tm_mday) + "_" + std::to_string(pTime_info->tm_hour) + "_" + std::to_string(pTime_info->tm_min) + "_" + std::to_string(pTime_info->tm_sec);
+  std::string directory = "/home/avees/ros2_ws/data/monitor_" + simulation_time + ".csv";
+
+  this->file_.open(directory.c_str(), std::ios_base::out | std::ios_base::app);
+  this->file_ << "beforegetdetections,aftergetdetections,beforeselectimage,afterselectimage,isshowimage,afterdrawimage,endpoint,timestamp\n";
+
   // Information
   RCLCPP_INFO(this->get_logger(), "[Demo] Finish initialization.");
 }
 
 MonitorDemo::~MonitorDemo()
 {
+  // Benchmark
+  this->file_.close();
+  RCLCPP_INFO(this->get_logger(), "Saving benchmark result is successful.");
+
   std::cerr << "[Demo] Press Ctrl+C to terminate system.\n";
 
   this->run_flag_ = false;
@@ -113,13 +130,21 @@ void MonitorDemo::can_show()
   pthread_mutex_lock(&mutex);
 
   pthread_cond_wait(&cond, &mutex);
+
+  long long int benchmark_beforegetdetections = static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0);
+
   std::vector<ObjectDetection> detections;
   detections.swap(this->detections_);
   pthread_mutex_unlock(&mutex);
 
+  long long int benchmark_aftergetdetections = static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0);
+
   // Image
   cv_bridge::CvImagePtr cv_image = nullptr;
   pthread_mutex_lock(&mutex_image);
+
+  long long int benchmark_beforeselectimage = static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0);
+  
   while (this->image_queue_.size())
   {
     int queued_image_stamp = static_cast<int>(static_cast<long long int>(rclcpp::Time(this->image_queue_.front()->header.stamp).seconds() * 1000.0) % 60000ll);
@@ -149,18 +174,29 @@ void MonitorDemo::can_show()
   }
   pthread_mutex_unlock(&mutex_image);
 
+  long long int benchmark_afterselectimage = static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0);
+
   // Check image
+  long long int benchmark_isshowimage = 1ll;
   if (cv_image == nullptr)
   {
+    long long int benchmark_isshowimage = 0ll;
+    this->file_ << benchmark_beforegetdetections << "," << benchmark_aftergetdetections << "," << benchmark_beforeselectimage << "," << benchmark_afterselectimage << "," << benchmark_isshowimage << "\n";
     return;
   }
 
   // Draw bounding boxes
   draw_image(cv_image, detections);
 
+  long long int benchmark_afterdrawimage = static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0);
+
   // Show image
   cv::imshow("Result image", cv_image->image);
   cv::waitKey(10);
+
+  long long int benchmark_endpoint = static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0);
+  long long int benchmark_timestamp = static_cast<long long int>(rclcpp::Time(cv_image->header.stamp).seconds() * 1000000.0);
+  this->file_ << benchmark_beforegetdetections << "," << benchmark_aftergetdetections << "," << benchmark_beforeselectimage << "," << benchmark_afterselectimage << "," << benchmark_isshowimage << "," << benchmark_afterdrawimage << "," << benchmark_endpoint << "," << benchmark_timestamp << "\n";
 }
 
 void* MonitorDemo::receive_thread(void* arg)

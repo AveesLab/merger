@@ -75,5 +75,8 @@ private:
   pthread_cond_t cond;
   pthread_t thread_receive;
   pthread_t thread_show;
+
+  // Benchmark
+  std::fstream file_;
 };
 
