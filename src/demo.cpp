@@ -7,6 +7,13 @@ MonitorDemo::MonitorDemo()
   // Information
   RCLCPP_INFO(this->get_logger(), "Initialization Start.");
 
+  // Acquire video
+  this->cap = cv::VideoCapture("/home/avees/ros2_ws/video/rtss_work_demo.mp4");
+  if(!this->cap.isOpened()) {
+    RCLCPP_ERROR(this->get_logger(), "Error opening video stream or file");
+    rclcpp::shutdown();
+  }
+
   rclcpp::QoS QOS_RKL10V = rclcpp::QoS(rclcpp::KeepLast(10)).reliable().durability_volatile();
 
   // Subscriber
@@ -23,6 +30,8 @@ MonitorDemo::MonitorDemo()
   this->detections_per_node_.resize(this->number_of_nodes_);
 
   this->run_flag_ = true;
+  this->record_flag_ = false;
+  this->record_cnt_ = 0;
 
   // pthread
   pthread_mutex_init(&mutex, NULL);
@@ -31,6 +40,7 @@ MonitorDemo::MonitorDemo()
 
   pthread_create(&thread_receive, NULL, receive_thread, this);
   pthread_create(&thread_show, NULL, show_thread, this);
+  pthread_create(&thread_video, NULL, video_thread, this);
 
   // Benchmark
   time_t raw_time;
@@ -55,15 +65,18 @@ MonitorDemo::~MonitorDemo()
   this->file_.close();
   RCLCPP_INFO(this->get_logger(), "Saving benchmark result is successful.");
 
+  this->cap.release();
+
   std::cerr << "[Demo] Press Ctrl+C to terminate system.\n";
 
   this->run_flag_ = false;
 
-  pthread_mutex_destroy(&mutex);
-  pthread_cond_destroy(&cond);
-
+  pthread_join(thread_video, NULL);
   pthread_join(thread_receive, NULL);
   pthread_join(thread_show, NULL);
+
+  pthread_mutex_destroy(&mutex);
+  pthread_cond_destroy(&cond);
 }
 
 void MonitorDemo::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
@@ -181,7 +194,10 @@ void MonitorDemo::can_show()
   if (cv_image == nullptr)
   {
     long long int benchmark_isshowimage = 0ll;
-    this->file_ << benchmark_beforegetdetections << "," << benchmark_aftergetdetections << "," << benchmark_beforeselectimage << "," << benchmark_afterselectimage << "," << benchmark_isshowimage << "\n";
+    if (this->record_flag_)
+    {
+      this->file_ << benchmark_beforegetdetections << "," << benchmark_aftergetdetections << "," << benchmark_beforeselectimage << "," << benchmark_afterselectimage << "," << benchmark_isshowimage << "\n";
+    }
     return;
   }
 
@@ -196,7 +212,37 @@ void MonitorDemo::can_show()
 
   long long int benchmark_endpoint = static_cast<long long int>(this->get_clock()->now().seconds() * 1000000.0);
   long long int benchmark_timestamp = static_cast<long long int>(rclcpp::Time(cv_image->header.stamp).seconds() * 1000000.0);
-  this->file_ << benchmark_beforegetdetections << "," << benchmark_aftergetdetections << "," << benchmark_beforeselectimage << "," << benchmark_afterselectimage << "," << benchmark_isshowimage << "," << benchmark_afterdrawimage << "," << benchmark_endpoint << "," << benchmark_timestamp << "\n";
+  if (this->record_flag_)
+  {
+    this->file_ << benchmark_beforegetdetections << "," << benchmark_aftergetdetections << "," << benchmark_beforeselectimage << "," << benchmark_afterselectimage << "," << benchmark_isshowimage << "," << benchmark_afterdrawimage << "," << benchmark_endpoint << "," << benchmark_timestamp << "\n";
+  }
+}
+
+void MonitorDemo::play_video()
+{
+  while(rclcpp::ok())
+  {
+    if (record_cnt_ < 100)
+    {
+      record_cnt_++;
+    }
+    else
+    {
+      record_flag_ = true;
+    }
+
+    cv::Mat frame;
+    cap >> frame;
+
+    if (frame.empty())
+      break;
+
+    cv::imshow("Video Player", frame);
+
+    char c = (char)cv::waitKey(16);
+    if (c == 27) // ESC
+      break;
+  }
 }
 
 void* MonitorDemo::receive_thread(void* arg)
@@ -213,6 +259,15 @@ void* MonitorDemo::show_thread(void* arg)
   while (static_cast<MonitorDemo*>(arg)->run_flag_)
   {
     static_cast<MonitorDemo*>(arg)->can_show();
+  }
+  return nullptr;
+}
+
+void* MonitorDemo::video_thread(void* arg)
+{
+  while (static_cast<MonitorDemo*>(arg)->run_flag_)
+  {
+    static_cast<MonitorDemo*>(arg)->play_video();
   }
   return nullptr;
 }

@@ -46,6 +46,7 @@ public:
 
   void can_receive();
   void can_show();
+  void play_video();
 
 private:
   std::shared_ptr<CanReceiver> can_receiver_;
@@ -57,8 +58,11 @@ private:
 
   static void* receive_thread(void* arg);
   static void* show_thread(void* arg);
+  static void* video_thread(void* arg);
 
   bool run_flag_;
+  bool record_flag_;
+  int record_cnt_;
 
   // Shared Resource
   std::queue<cv_bridge::CvImagePtr> image_queue_;
@@ -75,6 +79,10 @@ private:
   pthread_cond_t cond;
   pthread_t thread_receive;
   pthread_t thread_show;
+  pthread_t thread_video;
+
+  // Acquire video
+  cv::VideoCapture cap;
 
   // Benchmark
   std::fstream file_;
