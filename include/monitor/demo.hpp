@@ -46,6 +46,7 @@ public:
 
   void can_receive();
   void can_show();
+  void can_show_tmp();
   void play_video();
 
 private:
@@ -86,5 +87,6 @@ private:
 
   // Benchmark
   std::fstream file_;
+  std::fstream file2_;
 };
 
