@@ -31,8 +31,12 @@
 #include <fstream>
 
 // ROS
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/header.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/header.hpp>
+#include <posenet_msgs/msg/keypoints.hpp>
+#include <posenet_msgs/msg/links.hpp>
+#include <posenet_msgs/msg/objectpose.hpp>
+#include <posenet_msgs/msg/poses.hpp>
 
 
 class MonitorDemo : public rclcpp::Node
@@ -43,11 +47,11 @@ public:
 
 private:
   void image_callback(const sensor_msgs::msg::Image::SharedPtr image);
-  void detections_receive(const vision_msgs::msg::Detection2DArray::SharedPtr detections);
-  void draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::msg::Detection2DArray::SharedPtr detections);
+  void result_callback(const posenet_msgs::msg::Poses::SharedPtr poses);
+  void show_overlay(cv::Mat& input, const posenet_msgs::msg::Poses::SharedPtr poses);
 
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscriber_;
-  rclcpp::Subscription<vision_msgs::msg::Detection2DArray>::SharedPtr detections_subscriber_;
+  rclcpp::Subscription<posenet_msgs::msg::Poses>::SharedPtr detections_subscriber_;
 
   // Shared Resource
   std::queue<cv_bridge::CvImagePtr> image_queue_;

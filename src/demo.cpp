@@ -12,7 +12,7 @@ MonitorDemo::MonitorDemo()
   // Subscriber
   using std::placeholders::_1;
   this->image_subscriber_ = this->create_subscription<sensor_msgs::msg::Image>("/camera/raw_image", QOS_RKL10V, std::bind(&MonitorDemo::image_callback, this, _1));
-  this->detections_subscriber_ = this->create_subscription<vision_msgs::msg::Detection2DArray>("/detections", QOS_RKL10V, std::bind(&MonitorDemo::detections_receive, this, _1));
+  this->detections_subscriber_ = this->create_subscription<posenet_msgs::msg::Poses>("/cluster/poses", QOS_RKL10V, std::bind(&MonitorDemo::result_callback, this, _1));
 
   // Information
   RCLCPP_INFO(this->get_logger(), "[Demo] Finish initialization.");
@@ -42,14 +42,14 @@ void MonitorDemo::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
   pthread_mutex_unlock(&mutex_image);
 }
 
-void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::SharedPtr detections)
+void MonitorDemo::result_callback(const posenet_msgs::msg::Poses::SharedPtr poses)
 {
   // Select image
   cv_bridge::CvImagePtr cv_image = nullptr;
 
   pthread_mutex_lock(&mutex_image);
 
-  int detections_stamp = static_cast<int>(rclcpp::Time(detections->header.stamp).seconds() * 1000.0);
+  int detections_stamp = static_cast<int>(rclcpp::Time(poses->header.stamp).seconds() * 1000.0);
   while (this->image_queue_.size())
   {
     int queued_image_stamp = static_cast<int>(rclcpp::Time(this->image_queue_.front()->header.stamp).seconds() * 1000.0);
@@ -84,26 +84,30 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   }
 
   // Draw bounding boxes
-  draw_image(cv_image, detections);
-
-  // Show image
-  cv::imshow("Result image", cv_image->image);
-  cv::waitKey(10);
+  show_overlay(cv_image->image, poses);
 }
 
-void MonitorDemo::draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::msg::Detection2DArray::SharedPtr detections)
+void MonitorDemo::show_overlay(cv::Mat& input, const posenet_msgs::msg::Poses::SharedPtr poses)
 {
-  for (size_t i = 0; i < detections->detections.size(); i++) {
-    // Get rectangle from 1 object
-    cv::Rect r = cv::Rect(round(detections->detections[i].bbox.center.x - detections->detections[i].bbox.size_x),
-                          round(detections->detections[i].bbox.center.y - detections->detections[i].bbox.size_y),
-                          round(2 * detections->detections[i].bbox.size_x),
-                          round(2 * detections->detections[i].bbox.size_y));
+	// get the image dimensions
+	const float line_width = std::max(std::max(input.cols, input.rows) * 0.0013f, 1.5f);
+  const float circle_radius = std::max(std::max(input.cols, input.rows) * 0.0052f, 4.0f);
 
-    // draw_box
-    cv::rectangle(cv_image->image, r, cv::Scalar(0x27, 0xC1, 0x36), 2);
+	for (const auto& pose : poses->poses)
+    {
+      for (const auto& link : pose.links)
+      {
+        const int a = link.first;
+        const int b = link.second;
+        cv::line(input, cv::Point(pose.keypoints[a].x, pose.keypoints[a].y), cv::Point(pose.keypoints[b].x, pose.keypoints[b].y), cv::Scalar(0, 255, 0), line_width);
+      }
 
-    // put id
-    cv::putText(cv_image->image, detections->detections[i].tracking_id, cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
-  }
+      for (const auto& keypoint : pose.keypoints)
+      {
+        cv::circle(input, cv::Point(keypoint.x, keypoint.y), circle_radius, cv::Scalar(0, 255, 0), -1);
+      }
+    }
+
+	cv::imshow("Overlay Image", input);
+  cv::waitKey(1);
 }

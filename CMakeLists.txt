@@ -27,6 +27,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(vision_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(Threads REQUIRED)
+find_package(posenet_msgs REQUIRED)
 
 include_directories(include)
 
@@ -39,6 +40,7 @@ ament_target_dependencies(demo_node
   vision_msgs
   cv_bridge
   Threads
+  posenet_msgs
 )
 
 add_library(demo_library SHARED src/demo.cpp)
@@ -49,11 +51,11 @@ ament_target_dependencies(demo_library
   vision_msgs
   cv_bridge
   Threads
+  posenet_msgs
 )
 
 target_link_libraries(demo_node
   demo_library
-  pcanbasic
 )
 
 install(TARGETS
