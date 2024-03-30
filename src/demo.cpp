@@ -48,6 +48,8 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   cv_bridge::CvImagePtr cv_image = nullptr;
 
   pthread_mutex_lock(&mutex_image);
+  
+  RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
 
   int detections_stamp = static_cast<int>(rclcpp::Time(detections->header.stamp).seconds() * 1000.0);
   while (this->image_queue_.size())
