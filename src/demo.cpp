@@ -105,6 +105,9 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   cv::imshow("Result image", cv_image->image);
   cv::waitKey(10);
   
+  // Save the rejult image
+  save_img(cv_image);
+  
   if (all_received) std::fill(detections_received.begin(), detections_received.end(), false);
 }
 
@@ -123,4 +126,17 @@ void MonitorDemo::draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::
     // put id
     cv::putText(cv_image->image, detections->detections[i].tracking_id, cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
   }
+}
+
+void MonitorDemo::save_img(cv_bridge::CvImagePtr cv_image) {
+    std::string file_path = "./src/merger/result/";
+
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
+    std::string fileName = oss.str() + ".png";
+    std::string fullPath = file_path + fileName;
+
+    cv::imwrite(fullPath, cv_image->image);
 }

@@ -50,7 +50,8 @@ private:
   void image_callback(const sensor_msgs::msg::Image::SharedPtr image);
   void detections_receive(const vision_msgs::msg::Detection2DArray::SharedPtr detections);
   void draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::msg::Detection2DArray::SharedPtr detections);
-
+  void save_img(cv_bridge::CvImagePtr cv_image);
+  
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscriber_;
   rclcpp::Subscription<vision_msgs::msg::Detection2DArray>::SharedPtr detections_subscriber_;
 
