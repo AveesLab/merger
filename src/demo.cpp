@@ -50,6 +50,19 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   pthread_mutex_lock(&mutex_image);
   
   RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
+  
+  // Convert frame_id to int and mark as received
+  int frame_id = std::stoi(detections->header.frame_id);
+  if (frame_id >= 1 && frame_id <= 9) {
+    detections_received[frame_id - 1] = true; // Mark as received
+  }
+
+  // Check if all detections have been received
+  bool all_received = std::all_of(detections_received.begin(), detections_received.end(), [](bool received) { return received; });
+  if (all_received) {
+    cerr << "All node are received!" << endl;
+  }
+
 
   int detections_stamp = static_cast<int>(rclcpp::Time(detections->header.stamp).seconds() * 1000.0);
   while (this->image_queue_.size())
@@ -91,6 +104,8 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   // Show image
   cv::imshow("Result image", cv_image->image);
   cv::waitKey(10);
+  
+  if (all_received) std::fill(detections_received.begin(), detections_received.end(), false);
 }
 
 void MonitorDemo::draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::msg::Detection2DArray::SharedPtr detections)
