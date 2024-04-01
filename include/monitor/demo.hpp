@@ -29,10 +29,15 @@
 #include <string>
 #include <ctime>
 #include <fstream>
+#include <iostream>
+using namespace std;
 
 // ROS
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/header.hpp"
+
+// mutex
+pthread_mutex_t mutex_image;
 
 
 class MonitorDemo : public rclcpp::Node
@@ -51,7 +56,6 @@ private:
 
   // Shared Resource
   std::queue<cv_bridge::CvImagePtr> image_queue_;
-
-  // mutex
-  pthread_mutex_t mutex_image;
+  
+  std::vector<bool> detections_received{std::vector<bool>(9, false)};
 };
