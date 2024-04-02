@@ -36,10 +36,6 @@ using namespace std;
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/header.hpp"
 
-// mutex
-pthread_mutex_t mutex_image;
-pthread_mutex_t mutex_receive;
-
 
 class MonitorDemo : public rclcpp::Node
 {
@@ -60,4 +56,8 @@ private:
   std::queue<cv_bridge::CvImagePtr> image_queue_;
   
   std::vector<bool> detections_received{std::vector<bool>(9, false)};
+  
+  // mutex
+  pthread_mutex_t mutex_image;
+  pthread_mutex_t mutex_receive;
 };
