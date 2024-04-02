@@ -74,7 +74,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
     return;
   }
 
-  // Draw bounding boxes
+ /* // Draw bounding boxes
   draw_image(cv_image, detections);
 
   // Show image
@@ -83,7 +83,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   
   // Save the rejult image
   save_img(cv_image);
-  
+  */
   if (all_received) std::fill(detections_received.begin(), detections_received.end(), false);
 }
 
