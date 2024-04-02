@@ -47,7 +47,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   // Select image
   cv_bridge::CvImagePtr cv_image = nullptr;
 
-  pthread_mutex_lock(&mutex_image);
+  pthread_mutex_lock(&mutex_receive);
   
   RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
   
@@ -62,8 +62,11 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   if (all_received) {
     cerr << "All node are received!" << endl;
   }
-
+  pthread_mutex_unlock(&mutex_receive);
   // Save image
+  
+  pthread_mutex_lock(&mutex_image);
+
   cv_image = this->result_image_;
 
   pthread_mutex_unlock(&mutex_image);
@@ -84,9 +87,14 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   // Save the rejult image
   save_img(cv_image);
   */
-  if (all_received) std::fill(detections_received.begin(), detections_received.end(), false);
-}
+  pthread_mutex_lock(&mutex_receive_check);
 
+  if (all_received) std::fill(detections_received.begin(), detections_received.end(), false);
+  
+  pthread_mutex_unlock(&mutex_receive_check);
+
+}
+  
 void MonitorDemo::draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::msg::Detection2DArray::SharedPtr detections)
 {
   for (size_t i = 0; i < detections->detections.size(); i++) {

@@ -36,6 +36,8 @@ using namespace std;
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/header.hpp"
 
+pthread_mutex_t mutex_receive_check;
+
 
 class MonitorDemo : public rclcpp::Node
 {
