@@ -38,7 +38,7 @@ void MonitorDemo::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
 
   // Append a image on queue
   pthread_mutex_lock(&mutex_image);
-  this->image_queue_.push(tmp_cv_image);
+  this->result_image_ = tmp_cv_image;
   pthread_mutex_unlock(&mutex_image);
 }
 
@@ -63,32 +63,8 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
     cerr << "All node are received!" << endl;
   }
 
-
-  int detections_stamp = static_cast<int>(rclcpp::Time(detections->header.stamp).seconds() * 1000.0);
-  while (this->image_queue_.size())
-  {
-    int queued_image_stamp = static_cast<int>(rclcpp::Time(this->image_queue_.front()->header.stamp).seconds() * 1000.0);
-
-    if (queued_image_stamp != detections_stamp)
-    {
-      // Consume image
-      if (queued_image_stamp < detections_stamp)
-      {
-        this->image_queue_.pop();
-      }
-      if (queued_image_stamp > detections_stamp)
-      {
-        break;
-      }
-    }
-    else
-    {
-      // Save image
-      cv_image = this->image_queue_.front();
-
-      this->image_queue_.pop();
-    }
-  }
+  // Save image
+  cv_image = this->result_image_;
 
   pthread_mutex_unlock(&mutex_image);
 

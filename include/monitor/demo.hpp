@@ -54,6 +54,7 @@ private:
 
   // Shared Resource
   std::queue<cv_bridge::CvImagePtr> image_queue_;
+  cv_bridge::CvImagePtr result_image_;
   
   std::vector<bool> detections_received{std::vector<bool>(9, false)};
   
