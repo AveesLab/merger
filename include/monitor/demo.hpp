@@ -38,6 +38,7 @@ using namespace std;
 
 // mutex
 pthread_mutex_t mutex_image;
+pthread_mutex_t mutex_receive;
 
 
 class MonitorDemo : public rclcpp::Node
