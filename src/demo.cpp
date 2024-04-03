@@ -51,6 +51,9 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   
   RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
   
+  detection_list.push_back(detections);
+  cerr << "detection list size:" << detection_list.size() << endl;
+  
   // Convert frame_id to int and mark as received
   int frame_id = std::stoi(detections->header.frame_id);
   if (frame_id >= 1 && frame_id <= 9) {
@@ -63,7 +66,6 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
     cerr << "All node are received!" << endl;
   }
   pthread_mutex_unlock(&mutex_receive);
-  // Save image
   
   pthread_mutex_lock(&mutex_image);
 
@@ -77,19 +79,21 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
     return;
   }
 
- /* // Draw bounding boxes
-  draw_image(cv_image, detections);
+  
+  pthread_mutex_lock(&mutex_receive_check);
+
+  if (all_received) {
+  
+  // Draw bounding boxes
+  //draw_image(cv_image, detections);
 
   // Show image
   cv::imshow("Result image", cv_image->image);
   cv::waitKey(10);
   
-  // Save the rejult image
+  // Save the result image
   save_img(cv_image);
-  */
-  pthread_mutex_lock(&mutex_receive_check);
-
-  if (all_received) {
+  
   std::fill(detections_received.begin(), detections_received.end(), false);
   detection_list.clear();
   }
