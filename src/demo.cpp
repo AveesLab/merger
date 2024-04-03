@@ -89,8 +89,10 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   */
   pthread_mutex_lock(&mutex_receive_check);
 
-  if (all_received) std::fill(detections_received.begin(), detections_received.end(), false);
-  
+  if (all_received) {
+  std::fill(detections_received.begin(), detections_received.end(), false);
+  detection_list.clear();
+  }
   pthread_mutex_unlock(&mutex_receive_check);
 
 }

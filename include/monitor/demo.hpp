@@ -37,7 +37,7 @@ using namespace std;
 #include "std_msgs/msg/header.hpp"
 
 pthread_mutex_t mutex_receive_check;
-
+std::vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list;
 
 class MonitorDemo : public rclcpp::Node
 {
@@ -59,7 +59,6 @@ private:
   cv_bridge::CvImagePtr result_image_;
   
   std::vector<bool> detections_received{std::vector<bool>(9, false)};
-  
   // mutex
   pthread_mutex_t mutex_image;
   pthread_mutex_t mutex_receive;
