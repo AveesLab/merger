@@ -1,0 +1,8 @@
+[01m[K/home/avees/RTCSA_2024/src/merger/src/demo.cpp:[m[K In member function ‘[01m[Kvoid MonitorDemo::detections_receive(vision_msgs::msg::Detection2DArray_<std::allocator<void> >::SharedPtr)[m[K’:
+[01m[K/home/avees/RTCSA_2024/src/merger/src/demo.cpp:89:37:[m[K [01;31m[Kerror: [m[K‘[01m[K__gnu_cxx::__alloc_traits<std::allocator<std::shared_ptr<vision_msgs::msg::Detection2DArray_<std::allocator<void> > > >, std::shared_ptr<vision_msgs::msg::Detection2DArray_<std::allocator<void> > > >::value_type[m[K’ {aka ‘[01m[Kclass std::shared_ptr<vision_msgs::msg::Detection2DArray_<std::allocator<void> > >[m[K’} has no member named ‘[01m[Ksize[m[K’
+   89 |  endl << detection_list[0].[01;31m[Ksize[m[K() << endl;
+      |                            [01;31m[K^~~~[m[K
+
+make[2]: *** [CMakeFiles/demo_library.dir/build.make:63: CMakeFiles/demo_library.dir/src/demo.cpp.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:80: CMakeFiles/demo_library.dir/all] Error 2
+make: *** [Makefile:141: all] Error 2

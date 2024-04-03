@@ -52,7 +52,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
   
   detection_list.push_back(detections);
-  cerr << "detection list size:" << detection_list.size() << endl;
+  //cerr << "detection list size:" << detection_list.size() << endl;
   
   // Convert frame_id to int and mark as received
   int frame_id = stoi(detections->header.frame_id);
@@ -86,6 +86,14 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   
   // Draw bounding boxes
   draw_image(cv_image, detection_list[0]);
+  draw_image(cv_image, detection_list[1]);
+  draw_image(cv_image, detection_list[2]);
+  draw_image(cv_image, detection_list[3]);
+  draw_image(cv_image, detection_list[4]);
+  draw_image(cv_image, detection_list[5]);
+  draw_image(cv_image, detection_list[6]);
+  draw_image(cv_image, detection_list[7]);
+  draw_image(cv_image, detection_list[8]);
 
   // Show image
   cv::imshow("Result image", cv_image->image);

@@ -1,0 +1,32 @@
+[0.050s] Invoking command in '/home/avees/RTCSA_2024/src/merger/build/monitor': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake --build /home/avees/RTCSA_2024/src/merger/build/monitor -- -j6 -l6
+[0.156s] [35m[1mScanning dependencies of target demo_library[0m
+[0.239s] [ 25%] [32mBuilding CXX object CMakeFiles/demo_library.dir/src/demo.cpp.o[0m
+[23.396s] [ 50%] [32m[1mLinking CXX shared library libdemo_library.so[0m
+[24.460s] [ 50%] Built target demo_library
+[24.502s] [35m[1mScanning dependencies of target demo_node[0m
+[24.650s] [ 75%] [32mBuilding CXX object CMakeFiles/demo_node.dir/src/exec/demo_exec.cpp.o[0m
+[33.764s] [100%] [32m[1mLinking CXX executable demo_node[0m
+[35.388s] [100%] Built target demo_node
+[35.539s] Invoked command in '/home/avees/RTCSA_2024/src/merger/build/monitor' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake --build /home/avees/RTCSA_2024/src/merger/build/monitor -- -j6 -l6
+[35.665s] Invoking command in '/home/avees/RTCSA_2024/src/merger/build/monitor': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake --install /home/avees/RTCSA_2024/src/merger/build/monitor
+[35.691s] -- Install configuration: ""
+[35.691s] -- Installing: /home/avees/RTCSA_2024/src/merger/install/monitor/lib/libdemo_library.so
+[35.703s] -- Set runtime path of "/home/avees/RTCSA_2024/src/merger/install/monitor/lib/libdemo_library.so" to ""
+[35.703s] -- Installing: /home/avees/RTCSA_2024/src/merger/install/monitor/lib/monitor/demo_node
+[35.704s] -- Set runtime path of "/home/avees/RTCSA_2024/src/merger/install/monitor/lib/monitor/demo_node" to ""
+[35.704s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/ament_index/resource_index/package_run_dependencies/monitor
+[35.704s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/ament_index/resource_index/parent_prefix_path/monitor
+[35.705s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/environment/ament_prefix_path.sh
+[35.705s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/environment/ament_prefix_path.dsv
+[35.705s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/environment/path.sh
+[35.705s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/environment/path.dsv
+[35.705s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/local_setup.bash
+[35.706s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/local_setup.sh
+[35.706s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/local_setup.zsh
+[35.706s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/local_setup.dsv
+[35.706s] -- Installing: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/package.dsv
+[35.706s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/ament_index/resource_index/packages/monitor
+[35.706s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/cmake/monitorConfig.cmake
+[35.706s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/cmake/monitorConfig-version.cmake
+[35.707s] -- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/package.xml
+[35.719s] Invoked command in '/home/avees/RTCSA_2024/src/merger/build/monitor' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake --install /home/avees/RTCSA_2024/src/merger/build/monitor
