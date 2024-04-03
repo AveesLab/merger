@@ -10,9 +10,9 @@ MonitorDemo::MonitorDemo()
   rclcpp::QoS QOS_RKL10V = rclcpp::QoS(rclcpp::KeepLast(10)).reliable().durability_volatile();
 
   // Subscriber
-  using std::placeholders::_1;
-  this->image_subscriber_ = this->create_subscription<sensor_msgs::msg::Image>("/camera/raw_image", QOS_RKL10V, std::bind(&MonitorDemo::image_callback, this, _1));
-  this->detections_subscriber_ = this->create_subscription<vision_msgs::msg::Detection2DArray>("/detections", QOS_RKL10V, std::bind(&MonitorDemo::detections_receive, this, _1));
+  using placeholders::_1;
+  this->image_subscriber_ = this->create_subscription<sensor_msgs::msg::Image>("/camera/raw_image", QOS_RKL10V, bind(&MonitorDemo::image_callback, this, _1));
+  this->detections_subscriber_ = this->create_subscription<vision_msgs::msg::Detection2DArray>("/detections", QOS_RKL10V, bind(&MonitorDemo::detections_receive, this, _1));
 
   // Information
   RCLCPP_INFO(this->get_logger(), "[Demo] Finish initialization.");
@@ -55,13 +55,13 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   cerr << "detection list size:" << detection_list.size() << endl;
   
   // Convert frame_id to int and mark as received
-  int frame_id = std::stoi(detections->header.frame_id);
+  int frame_id = stoi(detections->header.frame_id);
   if (frame_id >= 1 && frame_id <= 9) {
     detections_received[frame_id - 1] = true; // Mark as received
   }
 
   // Check if all detections have been received
-  bool all_received = std::all_of(detections_received.begin(), detections_received.end(), [](bool received) { return received; });
+  bool all_received = all_of(detections_received.begin(), detections_received.end(), [](bool received) { return received; });
   if (all_received) {
     cerr << "All node are received!" << endl;
   }
@@ -85,7 +85,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   if (all_received) {
   
   // Draw bounding boxes
-  //draw_image(cv_image, detections);
+  draw_image(cv_image, detection_list[0]);
 
   // Show image
   cv::imshow("Result image", cv_image->image);
@@ -94,7 +94,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   // Save the result image
   save_img(cv_image);
   
-  std::fill(detections_received.begin(), detections_received.end(), false);
+  fill(detections_received.begin(), detections_received.end(), false);
   detection_list.clear();
   }
   pthread_mutex_unlock(&mutex_receive_check);
@@ -119,14 +119,14 @@ void MonitorDemo::draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::
 }
 
 void MonitorDemo::save_img(cv_bridge::CvImagePtr cv_image) {
-    std::string file_path = "./src/merger/result/";
+    string file_path = "./src/merger/result/";
 
-    auto t = std::time(nullptr);
-    auto tm = *std::localtime(&t);
-    std::ostringstream oss;
-    oss << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
-    std::string fileName = oss.str() + ".png";
-    std::string fullPath = file_path + fileName;
+    auto t = time(nullptr);
+    auto tm = *localtime(&t);
+    ostringstream oss;
+    oss << put_time(&tm, "%Y-%m-%d_%H-%M-%S");
+    string fileName = oss.str() + ".png";
+    string fullPath = file_path + fileName;
 
     cv::imwrite(fullPath, cv_image->image);
 }
