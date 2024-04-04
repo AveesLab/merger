@@ -25,16 +25,26 @@ MonitorDemo::~MonitorDemo()
 
 void MonitorDemo::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
 {
-  cv_bridge::CvImagePtr tmp_cv_image = cv_bridge::toCvCopy(*image, image->encoding);
+  cv::Mat loaded_image = cv::imread("/home/avees/RTCSA_2024/src/merger/data/0316.jpg", cv::IMREAD_COLOR);
+  
+  if(loaded_image.empty()) {
+  RCLCPP_ERROR(this->get_logger(), "Failed to load image.");
+  return;
+  }
+  
+  auto tmp_cv_image = std::make_shared<cv_bridge::CvImage>();
+  tmp_cv_image->image = loaded_image;
+  tmp_cv_image->encoding = "bgr8";
+  /*cv_bridge::CvImagePtr tmp_cv_image = cv_bridge::toCvCopy(*image, image->encoding);
 
   if (tmp_cv_image->encoding == "bayer_rggb8")
   {
     cv::Mat rgb8_image;
     cv::cvtColor(tmp_cv_image->image, rgb8_image, cv::COLOR_BayerRG2RGB);
     cv::swap(tmp_cv_image->image, rgb8_image);
-
+    
     tmp_cv_image->encoding = "rgb8";
-  }
+  }*/
 
   // Append a image on queue
   pthread_mutex_lock(&mutex_image);
