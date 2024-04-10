@@ -109,11 +109,36 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   cv::imshow("Result image", cv_image->image);
   cv::waitKey(10);
   
+  // Partial car class의 Bbox 정보만 걸러서 저장
+  vector<BoundingBox> partial_car_bboxes;
+  partial_car_bboxes = {
+        {283.54176, 456.59424,295.67104, 45.39024},
+        {748.4531, 445.2602, 210.9803, 70.4182},
+        {281.35296, 577.87944, 261.654613333, 182.38872},
+        {460.511146667, 577.6308, 67.47008,196.2096},
+        {741.498026667, 567.9168, 223.112533333, 177.29568},
+        {871.546453333, 567.4826, 38.53952, 177.38808}
+    };
+  
+  //clustering 
+  merge_bbox_with_clustering(partial_car_bboxes);
+
+  // draw_map(cv_image, clusterBoxes);
+  for (const auto& pair : clusterBoxes) {
+      cv::rectangle(cv_image->image, pair.second, cv::Scalar(0, 0, 255), 2);
+  }
+
+  // Show image
+  cv::imshow("After clustering image", cv_image->image);
+  cv::waitKey(10);
+  
   // Save the result image
   save_img(cv_image);
   
   fill(detections_received.begin(), detections_received.end(), false);
   detection_list.clear();
+  labels.clear();
+  clusterBoxes.clear();
   }
   pthread_mutex_unlock(&mutex_receive_check);
 
@@ -135,6 +160,55 @@ void MonitorDemo::draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::
     cv::putText(cv_image->image, detections->detections[i].tracking_id, cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
   }
 }
+
+void MonitorDemo::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes, double eps, int minPts) {
+    
+    int clusterId = 0;
+    labels.resize(partial_car_bboxes.size(), -1);
+
+    for (size_t i = 0; i < partial_car_bboxes.size(); ++i) {
+        if (labels[i] != -1) continue;
+
+        std::vector<size_t> neighbors;
+
+        for (size_t j = 0; j < partial_car_bboxes.size(); ++j) {
+            double distance = std::sqrt(std::pow(partial_car_bboxes[i].centerX - partial_car_bboxes[j].centerX, 2) + std::pow(partial_car_bboxes[i].centerY - partial_car_bboxes[j].centerY, 2));
+            if (distance <= eps) {
+                neighbors.push_back(j);
+            }
+        }
+
+        if (neighbors.size() < minPts) continue;
+        for (auto idx : neighbors) {
+            labels[idx] = clusterId;
+        }
+        clusterId++;
+    }
+}
+
+void MonitorDemo::merge_bbox_with_clustering(const vector<BoundingBox> partial_car_bboxes)
+{
+    
+    double eps = 300.0;
+    int minPts = 2; 
+    
+    simpleDBSCAN(partial_car_bboxes, eps, minPts);
+
+    for (size_t i = 0; i < partial_car_bboxes.size(); ++i) {
+        if (labels[i] == -1) continue;
+
+        cv::Point top_left(partial_car_bboxes[i].centerX - partial_car_bboxes[i].width / 2, partial_car_bboxes[i].centerY - partial_car_bboxes[i].height / 2);
+        cv::Point bottom_right(partial_car_bboxes[i].centerX + partial_car_bboxes[i].width / 2, partial_car_bboxes[i].centerY + partial_car_bboxes[i].height / 2);
+        cv::Rect currentBox(top_left, bottom_right);
+
+        if (clusterBoxes.find(labels[i]) == clusterBoxes.end()) {
+            clusterBoxes[labels[i]] = currentBox;
+        } else {
+            clusterBoxes[labels[i]] |= currentBox;
+        }
+    }
+  
+  }
 
 void MonitorDemo::save_img(cv_bridge::CvImagePtr cv_image) {
     string file_path = "./src/merger/result/";

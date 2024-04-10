@@ -39,6 +39,16 @@ using namespace std;
 pthread_mutex_t mutex_receive_check;
 vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list;
 
+map<int, cv::Rect> clusterBoxes;
+vector<int> labels;
+  
+struct BoundingBox {
+      double centerX;
+      double centerY;
+      double width;
+      double height;
+  };
+
 class MonitorDemo : public rclcpp::Node
 {
 public:
@@ -49,6 +59,8 @@ private:
   void image_callback(const sensor_msgs::msg::Image::SharedPtr image);
   void detections_receive(const vision_msgs::msg::Detection2DArray::SharedPtr detections);
   void draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::msg::Detection2DArray::SharedPtr detections);
+  void merge_bbox_with_clustering(const vector<BoundingBox> partial_car);
+  void simpleDBSCAN(const std::vector<BoundingBox> partial_car, double eps, int minPts);
   void save_img(cv_bridge::CvImagePtr cv_image);
   
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscriber_;
