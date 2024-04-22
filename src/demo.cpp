@@ -25,7 +25,7 @@ MonitorDemo::~MonitorDemo()
 
 void MonitorDemo::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
 {
-  cv::Mat loaded_image = cv::imread("/home/avees/RTCSA_2024/src/merger/data/4078.jpg", cv::IMREAD_COLOR);
+  cv::Mat loaded_image = cv::imread("/home/avees/RTCSA_2024/src/merger/data/0316.jpg", cv::IMREAD_COLOR);
   
   if(loaded_image.empty()) {
   RCLCPP_ERROR(this->get_logger(), "Failed to load image.");
@@ -109,9 +109,10 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   cv::imshow("Result image", cv_image->image);
   cv::waitKey(10);
   
-   // Partial car class's Bbox
+    // Partial car class's Bbox
   vector<BoundingBox> partial_car_bboxes;
   filterDetections(detection_list, partial_car_bboxes);
+  
   
   //clustering 
   merge_bbox_with_clustering(partial_car_bboxes);
@@ -159,7 +160,7 @@ void MonitorDemo::filterDetections(const std::vector<vision_msgs::msg::Detection
     for (const auto& detections : detection_list) { // detection_list 순회
         for (const auto& detection : detections->detections) { // 각 Detection2DArray 내의 Detection2D 순회
             if (detection.tracking_id == "1") { // tracking_id가 "1"인 경우
-                // Detection2D의 바운딩 박스 정보를 BoundingBox 구조체로 변환
+                // Detection2D의 바운딩 박스 정보를 BoundingBox 구조체로 변환                                                                                                         
                 BoundingBox box;
                 box.centerX = detection.bbox.center.x;
                 box.centerY = detection.bbox.center.y;
@@ -172,6 +173,7 @@ void MonitorDemo::filterDetections(const std::vector<vision_msgs::msg::Detection
         }
     }
 }
+
 
 void MonitorDemo::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes, double eps, int minPts) {
     

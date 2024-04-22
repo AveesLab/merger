@@ -62,7 +62,7 @@ private:
   void merge_bbox_with_clustering(const vector<BoundingBox> partial_car);
   void simpleDBSCAN(const std::vector<BoundingBox> partial_car, double eps, int minPts);
   void save_img(cv_bridge::CvImagePtr cv_image);
-  void filterDetections(const std::vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list, std::vector<BoundingBox>& partial_car_bboxes);  
+  void filterDetections(const std::vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list, std::vector<BoundingBox>& partial_car_bboxes);
   
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscriber_;
   rclcpp::Subscription<vision_msgs::msg::Detection2DArray>::SharedPtr detections_subscriber_;
