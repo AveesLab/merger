@@ -25,7 +25,7 @@ MonitorDemo::~MonitorDemo()
 
 void MonitorDemo::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
 {
-  cv::Mat loaded_image = cv::imread("/home/avees/RTCSA_2024/src/merger/data/0316.jpg", cv::IMREAD_COLOR);
+  cv::Mat loaded_image = cv::imread("/home/avees/RTCSA_2024/src/merger/data/4078.jpg", cv::IMREAD_COLOR);
   
   if(loaded_image.empty()) {
   RCLCPP_ERROR(this->get_logger(), "Failed to load image.");
@@ -109,16 +109,9 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   cv::imshow("Result image", cv_image->image);
   cv::waitKey(10);
   
-  // Partial car class의 Bbox 정보만 걸러서 저장
+   // Partial car class's Bbox
   vector<BoundingBox> partial_car_bboxes;
-  partial_car_bboxes = {
-        {283.54176, 456.59424,295.67104, 45.39024},
-        {748.4531, 445.2602, 210.9803, 70.4182},
-        {281.35296, 577.87944, 261.654613333, 182.38872},
-        {460.511146667, 577.6308, 67.47008,196.2096},
-        {741.498026667, 567.9168, 223.112533333, 177.29568},
-        {871.546453333, 567.4826, 38.53952, 177.38808}
-    };
+  filterDetections(detection_list, partial_car_bboxes);
   
   //clustering 
   merge_bbox_with_clustering(partial_car_bboxes);
@@ -159,6 +152,25 @@ void MonitorDemo::draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::
     // put id
     cv::putText(cv_image->image, detections->detections[i].tracking_id, cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
   }
+}
+
+void MonitorDemo::filterDetections(const std::vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list,
+                      std::vector<BoundingBox>& partial_car_bboxes) {
+    for (const auto& detections : detection_list) { // detection_list 순회
+        for (const auto& detection : detections->detections) { // 각 Detection2DArray 내의 Detection2D 순회
+            if (detection.tracking_id == "1") { // tracking_id가 "1"인 경우
+                // Detection2D의 바운딩 박스 정보를 BoundingBox 구조체로 변환
+                BoundingBox box;
+                box.centerX = detection.bbox.center.x;
+                box.centerY = detection.bbox.center.y;
+                box.width = 2 * detection.bbox.size_x; // width는 size_x의 2배
+                box.height = 2 * detection.bbox.size_y; // height는 size_y의 2배
+
+                // 변환된 BoundingBox 구조체를 partial_car_bboxes 벡터에 추가
+                partial_car_bboxes.push_back(box);
+            }
+        }
+    }
 }
 
 void MonitorDemo::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes, double eps, int minPts) {
