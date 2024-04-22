@@ -1,4 +1,25 @@
 #include "monitor/demo.hpp"
+#include <iomanip>
+
+int cluster_num=0;
+int draw_num=0;
+vector<double> clustering_inference;
+vector<double> clustering_start;
+vector<double> clustering_end;
+vector<double> draw_inference;
+vector<double> draw_start;
+vector<double> draw_end;
+vector<double> imshow_inference;
+vector<double> imshow_start;
+vector<double> imshow_end;
+
+
+double get_time_in_ms() {
+  auto now = std::chrono::steady_clock::now();
+  auto duration_since_epoch = now.time_since_epoch();
+  double milliseconds = std::chrono::duration<double, std::milli>(duration_since_epoch).count();
+  return milliseconds;
+}
 
 
 MonitorDemo::MonitorDemo()
@@ -56,7 +77,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 {
   // Select image
   cv_bridge::CvImagePtr cv_image = nullptr;
-
+  
   pthread_mutex_lock(&mutex_receive);
   
   RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
@@ -115,15 +136,34 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   
   
   //clustering 
-  merge_bbox_with_clustering(partial_car_bboxes);
 
+  merge_bbox_with_clustering(partial_car_bboxes);
+    	
   // draw_map(cv_image, clusterBoxes);
   for (const auto& pair : clusterBoxes) {
       cv::rectangle(cv_image->image, pair.second, cv::Scalar(0, 0, 255), 2);
   }
-
+  draw_end.push_back(get_time_in_ms());
+  
+  draw_inference.push_back(draw_end.back() - draw_start.back());
+    	
+    	
+    	
+  imshow_start.push_back(get_time_in_ms());
   // Show image
   cv::imshow("After clustering image", cv_image->image);
+  imshow_end.push_back(get_time_in_ms());
+  imshow_inference.push_back(imshow_end.back()-imshow_start.back());
+  
+  draw_num++;
+  if(draw_num ==10) {
+      std::ofstream file("clustering_inference.csv");
+     
+      file << std::fixed << std::setprecision(6) << "clustering start time\t" << "Inference Time(ms)\t" << "clustering end time\t"<< "draw start time\t" << "Inference Time(ms)\t" << "draw end time\t"<< "imshow start time\t" << "Inference Time(ms)\t" << "imshow end time\n" ;
+      for (int i=0;i<10;i++){
+      std::cerr << i << std::endl;
+      file << clustering_start[i] <<"\t"<< clustering_inference[i] << "\t"<< clustering_end[i] << "\t" << draw_start[i] <<"\t"<< draw_inference[i] << "\t"<< draw_end[i] << "\t"<< imshow_start[i] <<"\t"<< imshow_inference[i] << "\t"<< imshow_end[i] << "\n";}
+    	file.close();}
   cv::waitKey(10);
   
   // Save the result image
@@ -177,6 +217,7 @@ void MonitorDemo::filterDetections(const std::vector<vision_msgs::msg::Detection
 
 void MonitorDemo::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes, double eps, int minPts) {
     
+    clustering_start.push_back(get_time_in_ms());
     int clusterId = 0;
     labels.resize(partial_car_bboxes.size(), -1);
 
@@ -198,6 +239,10 @@ void MonitorDemo::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes
         }
         clusterId++;
     }
+    clustering_end.push_back(get_time_in_ms());
+    double inference_time=clustering_end.back() - clustering_start.back();
+    std::cerr << inference_time << std::endl;
+    clustering_inference.push_back(inference_time);
 }
 
 void MonitorDemo::merge_bbox_with_clustering(const vector<BoundingBox> partial_car_bboxes)
@@ -208,20 +253,24 @@ void MonitorDemo::merge_bbox_with_clustering(const vector<BoundingBox> partial_c
     
     simpleDBSCAN(partial_car_bboxes, eps, minPts);
 
+ 
+    draw_start.push_back(get_time_in_ms());
     for (size_t i = 0; i < partial_car_bboxes.size(); ++i) {
         if (labels[i] == -1) continue;
 
+
+
+
         cv::Point top_left(partial_car_bboxes[i].centerX - partial_car_bboxes[i].width / 2, partial_car_bboxes[i].centerY - partial_car_bboxes[i].height / 2);
         cv::Point bottom_right(partial_car_bboxes[i].centerX + partial_car_bboxes[i].width / 2, partial_car_bboxes[i].centerY + partial_car_bboxes[i].height / 2);
+        
         cv::Rect currentBox(top_left, bottom_right);
-
         if (clusterBoxes.find(labels[i]) == clusterBoxes.end()) {
             clusterBoxes[labels[i]] = currentBox;
         } else {
             clusterBoxes[labels[i]] |= currentBox;
         }
     }
-  
   }
 
 void MonitorDemo::save_img(cv_bridge::CvImagePtr cv_image) {
