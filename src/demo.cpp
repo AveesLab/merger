@@ -5,9 +5,9 @@
 int cluster_num=0;
 int draw_num=0;
 vector<uint64_t> end_ethernet;
-vector<uint64_t> e_clustering;
-vector<uint64_t> start_clustering;
-vector<uint64_t> end_clustering;
+vector<uint64_t> e_merge;
+vector<uint64_t> start_merge;
+vector<uint64_t> end_merge;
 vector<uint64_t> e_draw;
 vector<uint64_t> start_draw;
 vector<uint64_t> end_draw;
@@ -17,6 +17,9 @@ vector<uint64_t> end_display;
 vector<uint64_t> node_index;
 vector<uint64_t> node_end_ethernet;
 vector<uint64_t> status;
+vector<uint64_t> e_waiting_all_received;
+vector<uint64_t> start_waiting_all_received;
+vector<uint64_t> end_waiting_all_received;
 
 
 
@@ -83,124 +86,124 @@ uint64_t MonitorDemo::get_time_in_ms() {
 
 void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::SharedPtr detections)
 {
-  // Select image
-  cv_bridge::CvImagePtr cv_image = nullptr;
-  
+
   pthread_mutex_lock(&mutex_receive);
-  
+  // waiting_all_received
+  start_waiting_all_received.push_back(get_time_in_ms());
   int frame_id = stoi(detections->header.frame_id);
   node_index.push_back(frame_id);
   node_end_ethernet.push_back(get_time_in_ms());
   
+
   RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
   
   detection_list.push_back(detections);
-  //cerr << "detection list size:" << detection_list.size() << endl;
-  
-  // Convert frame_id to int and mark as received
-
   if (frame_id >= 1 && frame_id <= TOTAL_NUM_OF_NODES) {
-    detections_received[frame_id - 1] = true; // Mark as received
-    status.push_back(0);
-  }
+	detections_received[frame_id - 1] = true; // Mark as received
+	status.push_back(0);
 	
-  // Check if all detections have been received
-  bool all_received = all_of(detections_received.begin(), detections_received.end(), [](bool received) { return received; });
-  if (all_received) {
-    end_ethernet.push_back(get_time_in_ms());
-    status.pop_back();
-    status.push_back(1);
+	all_received = all_of(detections_received.begin(), detections_received.end(), [](bool received) { return received; });
+	
+	if (all_received) {
+		end_ethernet.push_back(node_end_ethernet.back());
+		status.pop_back();
+		status.push_back(1);
 
-    cerr << "All node are received!" << endl;
+		cerr << "All node are received!" << endl;
+	}
   }
+  end_waiting_all_received.push_back(get_time_in_ms());
+  
   pthread_mutex_unlock(&mutex_receive);
   
-  pthread_mutex_lock(&mutex_image);
 
-  cv_image = this->result_image_;
-
-  pthread_mutex_unlock(&mutex_image);
-
-  // Check image
-  if (cv_image == nullptr)
-  {
-    return;
-  }
-
-  
+  // All nodes is received
   pthread_mutex_lock(&mutex_receive_check);
 
   if (all_received) {
-  
-  // Draw bounding boxes
-  draw_image(cv_image, detection_list[0]);
-  draw_image(cv_image, detection_list[1]);
-  draw_image(cv_image, detection_list[2]);
-  draw_image(cv_image, detection_list[3]);
-  draw_image(cv_image, detection_list[4]);
-  draw_image(cv_image, detection_list[5]);
-  draw_image(cv_image, detection_list[6]);
-  draw_image(cv_image, detection_list[7]);
-  draw_image(cv_image, detection_list[8]);
+	  
+	// merge with clustering 
+	start_merge.push_back(get_time_in_ms());
 
-  // Show image
-  cv::imshow("Result image", cv_image->image);
-  cv::waitKey(10);
-  
-    // Partial car class's Bbox
-  vector<BoundingBox> partial_car_bboxes;
-  filterDetections(detection_list, partial_car_bboxes);
-  
-  
-  //clustering 
+	pthread_mutex_lock(&mutex_image);
 
-  merge_bbox_with_clustering(partial_car_bboxes);
-    	
-  // draw_map(cv_image, clusterBoxes);
-  for (const auto& pair : clusterBoxes) {
-      cv::rectangle(cv_image->image, pair.second, cv::Scalar(0, 0, 255), 2);
-  }
-  end_draw.push_back(get_time_in_ms());
-  
+	cv_bridge::CvImagePtr cv_image = nullptr;	
+	cv_image = this->result_image_;
+	if (cv_image == nullptr)
+	{
+	return;
+	}
+	pthread_mutex_unlock(&mutex_image);
 
-    	
-    	
-    	
-  start_display.push_back(get_time_in_ms());
-  // Show image
-  cv::imshow("After clustering image", cv_image->image);
-  cv::waitKey(10);
-  end_display.push_back(get_time_in_ms());
-  e_clustering.push_back(end_clustering.back() - start_clustering.back());
-  e_draw.push_back(end_draw.back() - start_draw.back());
-  e_display.push_back(end_display.back()-start_display.back());
 
-  draw_num++;
-  if(draw_num ==EXP_NUM) {
-      std::ofstream file1("master_node.csv");
-     
-      file1 << std::fixed << std::setprecision(6) << "ethernet_end_time\t" <<"clustering_start_time\t" << "clustering_time(us)\t" << "clustering_end_time\t"<< "draw_start_time\t" << "draw_time(us)\t" << "draw_end_time\t"<< "display_start_time\t" << "display_time(us)\t" << "display_end_time\n" ;
-      
-      for (int i=0;i<draw_num;i++){
-      file1 << end_ethernet[i] << "\t" << start_clustering[i] <<"\t"<< e_clustering[i] << "\t"<< end_clustering[i] << "\t" << start_draw[i] <<"\t"<< e_draw[i] << "\t"<< end_draw[i] << "\t"<< start_display[i] <<"\t"<< e_display[i] << "\t"<< end_display[i] << "\n";}
-   file1.close();
-   
-      std::ofstream file2("master_node_ethernet.csv");
-      file2 << std::fixed << std::setprecision(6) << "node_index\t" << "end_ethernet\t"<<"status\n" ;
-      for (int i=0;i<draw_num*TOTAL_NUM_OF_NODES;i++){
-      cerr << i << endl;
-      file2 << node_index[i] << "\t" << node_end_ethernet[i] <<"\t"<< status[i] << "\n";}
-   file2.close();}
-  
-  // Save the result image
-  save_img(cv_image);
-  
-  fill(detections_received.begin(), detections_received.end(), false);
-  
+	vector<BoundingBox> partial_car_bboxes;
+	filterDetections(detection_list, partial_car_bboxes);
+	merge_bbox_with_clustering(partial_car_bboxes);
 
-  detection_list.clear();
-  labels.clear();
-  clusterBoxes.clear();
+	end_merge.push_back(get_time_in_ms());
+
+
+	// Draw bounding boxes
+	start_draw.push_back(get_time_in_ms());
+
+	draw_image(cv_image, detection_list[0]);
+	draw_image(cv_image, detection_list[1]);
+	draw_image(cv_image, detection_list[2]);
+	draw_image(cv_image, detection_list[3]);
+	draw_image(cv_image, detection_list[4]);
+	draw_image(cv_image, detection_list[5]);
+	draw_image(cv_image, detection_list[6]);
+	draw_image(cv_image, detection_list[7]);
+	draw_image(cv_image, detection_list[8]);
+
+	// draw_map(cv_image, clusterBoxes);
+	for (const auto& pair : clusterBoxes) {
+	cv::rectangle(cv_image->image, pair.second, cv::Scalar(0, 0, 255), 2);
+	}
+
+	end_draw.push_back(get_time_in_ms());
+
+
+	// Show image
+	start_display.push_back(get_time_in_ms());
+
+	cv::imshow("After merge image", cv_image->image);
+	cv::waitKey(10);
+	
+	end_display.push_back(get_time_in_ms());
+
+
+	e_waiting_all_received.push_back(end_waiting_all_received.back() - start_waiting_all_received.back());
+	e_merge.push_back(end_merge.back() - start_merge.back());
+	e_draw.push_back(end_draw.back() - start_draw.back());
+	e_display.push_back(end_display.back()-start_display.back());
+
+	draw_num++;
+	if(draw_num ==EXP_NUM) {
+	std::ofstream file1("master_node.csv");
+
+	file1 << std::fixed << std::setprecision(6) << "start_waiting_all_received\t" <<"e_waiting_all_received(us)\t" << "end_waiting_all_received\t"<< "end_ethernet\t" <<"start_merge\t" << "e_merge(us)\t" << "end_merge\t"<< "start_draw\t" << "e_draw(us)\t" << "end_draw\t"<< "start_display\t" << "e_display(us)\t" << "end_display\n" ;
+
+	for (int i=0;i<draw_num;i++){
+	file1 <<start_waiting_all_received[i]<<"\t" <<e_waiting_all_received[i]<<"\t" << end_waiting_all_received[i]<<"\t"<<end_ethernet[i] << "\t" << start_merge[i] <<"\t"<< e_merge[i] << "\t"<< end_merge[i] << "\t" << start_draw[i] <<"\t"<< e_draw[i] << "\t"<< end_draw[i] << "\t"<< start_display[i] <<"\t"<< e_display[i] << "\t"<< end_display[i] << "\n";}
+	file1.close();
+
+	std::ofstream file2("master_node_ethernet.csv");
+	file2 << std::fixed << std::setprecision(6) << "node_index\t" << "end_ethernet\t"<<"status\n" ;
+	for (int i=0;i<draw_num*TOTAL_NUM_OF_NODES;i++){
+	cerr << i << endl;
+	file2 << node_index[i] << "\t" << node_end_ethernet[i] <<"\t"<< status[i] << "\n";}
+	file2.close();}
+
+	// Save the result image
+	save_img(cv_image);
+
+	fill(detections_received.begin(), detections_received.end(), false);
+
+
+	detection_list.clear();
+	labels.clear();
+	clusterBoxes.clear();
   }
   pthread_mutex_unlock(&mutex_receive_check);
 
@@ -245,7 +248,6 @@ void MonitorDemo::filterDetections(const std::vector<vision_msgs::msg::Detection
 
 void MonitorDemo::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes, double eps, int minPts) {
     
-    start_clustering.push_back(get_time_in_ms());
     int clusterId = 0;
     labels.resize(partial_car_bboxes.size(), -1);
 
@@ -267,7 +269,6 @@ void MonitorDemo::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes
         }
         clusterId++;
     }
-    end_clustering.push_back(get_time_in_ms());
 
 }
 
@@ -280,7 +281,7 @@ void MonitorDemo::merge_bbox_with_clustering(const vector<BoundingBox> partial_c
     simpleDBSCAN(partial_car_bboxes, eps, minPts);
 
  
-    start_draw.push_back(get_time_in_ms());
+    
     for (size_t i = 0; i < partial_car_bboxes.size(); ++i) {
         if (labels[i] == -1) continue;
 

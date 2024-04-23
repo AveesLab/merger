@@ -1,7 +1,0 @@
-[0.163s] Invoking command in '/home/avees/RTCSA_2024/src/merger/build/monitor': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake --build /home/avees/RTCSA_2024/src/merger/build/monitor -- -j6 -l6
-[0.807s] [35m[1mScanning dependencies of target demo_library[0m
-[0.888s] [ 25%] [32mBuilding CXX object CMakeFiles/demo_library.dir/src/demo.cpp.o[0m
-[4.945s] make[2]: *** [CMakeFiles/demo_library.dir/build.make:63: CMakeFiles/demo_library.dir/src/demo.cpp.o] Interrupt
-[4.946s] make[1]: *** [CMakeFiles/Makefile2:80: CMakeFiles/demo_library.dir/all] Interrupt
-[4.946s] make: *** [Makefile:141: all] Interrupt
-[4.973s] Invoked command in '/home/avees/RTCSA_2024/src/merger/build/monitor' returned '-2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake --build /home/avees/RTCSA_2024/src/merger/build/monitor -- -j6 -l6

@@ -1,4 +1,0 @@
-source;share/monitor/local_setup.bash
-source;share/monitor/local_setup.dsv
-source;share/monitor/local_setup.sh
-source;share/monitor/local_setup.zsh

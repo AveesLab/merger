@@ -1,3 +1,0 @@
-make[2]: *** [CMakeFiles/demo_library.dir/build.make:63: CMakeFiles/demo_library.dir/src/demo.cpp.o] Interrupt
-make[1]: *** [CMakeFiles/Makefile2:80: CMakeFiles/demo_library.dir/all] Interrupt
-make: *** [Makefile:141: all] Interrupt

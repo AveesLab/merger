@@ -1,2 +1,0 @@
-Invoking command in '/home/avees/RTCSA_2024/src/merger/build/monitor': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake --build /home/avees/RTCSA_2024/src/merger/build/monitor -- -j6 -l6
-Invoked command in '/home/avees/RTCSA_2024/src/merger/build/monitor' returned '-2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/foxy /usr/bin/cmake --build /home/avees/RTCSA_2024/src/merger/build/monitor -- -j6 -l6
