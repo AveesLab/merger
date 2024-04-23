@@ -14,13 +14,16 @@ vector<uint64_t> end_draw;
 vector<uint64_t> e_display;
 vector<uint64_t> start_display;
 vector<uint64_t> end_display;
-
+vector<uint64_t> node_index;
+vector<uint64_t> node_end_ethernet;
+vector<uint64_t> status;
 
 
 
 MonitorDemo::MonitorDemo()
 : Node("MonitorDemo")
 {
+
   // Information
   RCLCPP_INFO(this->get_logger(), "Initialization Start.");
 
@@ -43,6 +46,8 @@ MonitorDemo::~MonitorDemo()
 
 void MonitorDemo::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
 {
+
+
   cv::Mat loaded_image = cv::imread("/home/avees/RTCSA_2024/src/merger/data/0316.jpg", cv::IMREAD_COLOR);
   
   if(loaded_image.empty()) {
@@ -83,21 +88,29 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   
   pthread_mutex_lock(&mutex_receive);
   
+  int frame_id = stoi(detections->header.frame_id);
+  node_index.push_back(frame_id);
+  node_end_ethernet.push_back(get_time_in_ms());
+  
   RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
   
   detection_list.push_back(detections);
   //cerr << "detection list size:" << detection_list.size() << endl;
   
   // Convert frame_id to int and mark as received
-  int frame_id = stoi(detections->header.frame_id);
-  if (frame_id >= 1 && frame_id <= 9) {
+
+  if (frame_id >= 1 && frame_id <= TOTAL_NUM_OF_NODES) {
     detections_received[frame_id - 1] = true; // Mark as received
+    status.push_back(0);
   }
 	
   // Check if all detections have been received
   bool all_received = all_of(detections_received.begin(), detections_received.end(), [](bool received) { return received; });
   if (all_received) {
     end_ethernet.push_back(get_time_in_ms());
+    status.pop_back();
+    status.push_back(1);
+
     cerr << "All node are received!" << endl;
   }
   pthread_mutex_unlock(&mutex_receive);
@@ -149,7 +162,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   }
   end_draw.push_back(get_time_in_ms());
   
-  e_draw.push_back(end_draw.back() - start_draw.back());
+
     	
     	
     	
@@ -158,22 +171,33 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   cv::imshow("After clustering image", cv_image->image);
   cv::waitKey(10);
   end_display.push_back(get_time_in_ms());
+  e_clustering.push_back(end_clustering.back() - start_clustering.back());
+  e_draw.push_back(end_draw.back() - start_draw.back());
   e_display.push_back(end_display.back()-start_display.back());
-  
+
   draw_num++;
-  if(draw_num ==10) {
-      std::ofstream file("clustering_inference.csv");
+  if(draw_num ==EXP_NUM) {
+      std::ofstream file1("master_node.csv");
      
-      file << std::fixed << std::setprecision(6) << "ethernet end time\t" <<"clustering start time\t" << "Inference Time(ms)\t" << "clustering end time\t"<< "draw start time\t" << "Inference Time(ms)\t" << "draw end time\t"<< "imshow start time\t" << "Inference Time(ms)\t" << "imshow end time\n" ;
-      for (int i=0;i<10;i++){
-      std::cerr << i << std::endl;
-      file << end_ethernet[i] << "\t" << start_clustering[i] <<"\t"<< e_clustering[i] << "\t"<< end_clustering[i] << "\t" << start_draw[i] <<"\t"<< e_draw[i] << "\t"<< end_draw[i] << "\t"<< start_display[i] <<"\t"<< e_display[i] << "\t"<< end_display[i] << "\n";}
-   file.close();}
+      file1 << std::fixed << std::setprecision(6) << "ethernet_end_time\t" <<"clustering_start_time\t" << "clustering_time(us)\t" << "clustering_end_time\t"<< "draw_start_time\t" << "draw_time(us)\t" << "draw_end_time\t"<< "display_start_time\t" << "display_time(us)\t" << "display_end_time\n" ;
+      
+      for (int i=0;i<draw_num;i++){
+      file1 << end_ethernet[i] << "\t" << start_clustering[i] <<"\t"<< e_clustering[i] << "\t"<< end_clustering[i] << "\t" << start_draw[i] <<"\t"<< e_draw[i] << "\t"<< end_draw[i] << "\t"<< start_display[i] <<"\t"<< e_display[i] << "\t"<< end_display[i] << "\n";}
+   file1.close();
+   
+      std::ofstream file2("master_node_ethernet.csv");
+      file2 << std::fixed << std::setprecision(6) << "node_index\t" << "end_ethernet\t"<<"status\n" ;
+      for (int i=0;i<draw_num*TOTAL_NUM_OF_NODES;i++){
+      cerr << i << endl;
+      file2 << node_index[i] << "\t" << node_end_ethernet[i] <<"\t"<< status[i] << "\n";}
+   file2.close();}
   
   // Save the result image
   save_img(cv_image);
   
   fill(detections_received.begin(), detections_received.end(), false);
+  
+
   detection_list.clear();
   labels.clear();
   clusterBoxes.clear();
@@ -244,7 +268,7 @@ void MonitorDemo::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes
         clusterId++;
     }
     end_clustering.push_back(get_time_in_ms());
-    e_clustering.push_back(end_clustering.back() - start_clustering.back());
+
 }
 
 void MonitorDemo::merge_bbox_with_clustering(const vector<BoundingBox> partial_car_bboxes)

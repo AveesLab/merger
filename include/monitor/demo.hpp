@@ -37,6 +37,9 @@ using namespace std;
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/header.hpp"
 
+#define TOTAL_NUM_OF_NODES 9
+#define EXP_NUM 100
+
 pthread_mutex_t mutex_receive_check;
 vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list;
 
@@ -72,7 +75,7 @@ private:
   queue<cv_bridge::CvImagePtr> image_queue_;
   cv_bridge::CvImagePtr result_image_;
   
-  vector<bool> detections_received{vector<bool>(9, false)};
+  vector<bool> detections_received{vector<bool>(TOTAL_NUM_OF_NODES, false)};
   // mutex
   pthread_mutex_t mutex_image;
   pthread_mutex_t mutex_receive;
