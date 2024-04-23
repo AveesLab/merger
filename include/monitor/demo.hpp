@@ -10,6 +10,7 @@
 #include <fstream>
 #include <pthread.h>
 #include <mutex>
+#include <stdint.h>
 
 // ROS
 #include "rclcpp/rclcpp.hpp"
@@ -63,7 +64,7 @@ private:
   void simpleDBSCAN(const std::vector<BoundingBox> partial_car, double eps, int minPts);
   void save_img(cv_bridge::CvImagePtr cv_image);
   void filterDetections(const std::vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list, std::vector<BoundingBox>& partial_car_bboxes);
-  
+  uint64_t get_time_in_ms();
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscriber_;
   rclcpp::Subscription<vision_msgs::msg::Detection2DArray>::SharedPtr detections_subscriber_;
 

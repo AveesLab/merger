@@ -1,0 +1,8 @@
+[01m[K/home/avees/RTCSA_2024/src/merger/src/demo.cpp:[m[K In member function ‘[01m[Kvoid MonitorDemo::image_callback(sensor_msgs::msg::Image_<std::allocator<void> >::SharedPtr)[m[K’:
+[01m[K/home/avees/RTCSA_2024/src/merger/src/demo.cpp:47:75:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kimage[m[K’ [[01;35m[K-Wunused-parameter[m[K]
+   47 | void MonitorDemo::image_callback([01;35m[Kconst sensor_msgs::msg::Image::SharedPtr image[m[K)
+      |                                  [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~[m[K
+[01m[K/home/avees/RTCSA_2024/src/merger/src/demo.cpp:[m[K In member function ‘[01m[Kvoid MonitorDemo::simpleDBSCAN(std::vector<BoundingBox>, double, int)[m[K’:
+[01m[K/home/avees/RTCSA_2024/src/merger/src/demo.cpp:238:30:[m[K [01;35m[Kwarning: [m[Kcomparison of integer expressions of different signedness: ‘[01m[Kstd::vector<long unsigned int>::size_type[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} and ‘[01m[Kint[m[K’ [[01;35m[K-Wsign-compare[m[K]
+  238 |         if ([01;35m[Kneighbors.size() < minPts[m[K) continue;
+      |             [01;35m[K~~~~~~~~~~~~~~~~~^~~~~~~~[m[K

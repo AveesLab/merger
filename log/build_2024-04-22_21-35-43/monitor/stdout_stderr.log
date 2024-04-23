@@ -1,0 +1,20 @@
+[ 50%] Built target demo_library
+[100%] Built target demo_node
+-- Install configuration: ""
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/lib/libdemo_library.so
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/lib/monitor/demo_node
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/ament_index/resource_index/package_run_dependencies/monitor
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/ament_index/resource_index/parent_prefix_path/monitor
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/environment/ament_prefix_path.sh
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/environment/ament_prefix_path.dsv
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/environment/path.sh
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/environment/path.dsv
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/local_setup.bash
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/local_setup.sh
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/local_setup.zsh
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/local_setup.dsv
+-- Installing: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/package.dsv
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/ament_index/resource_index/packages/monitor
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/cmake/monitorConfig.cmake
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/cmake/monitorConfig-version.cmake
+-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/package.xml

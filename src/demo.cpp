@@ -1,25 +1,21 @@
 #include "monitor/demo.hpp"
 #include <iomanip>
+#include <stdint.h>
 
 int cluster_num=0;
 int draw_num=0;
-vector<double> clustering_inference;
-vector<double> clustering_start;
-vector<double> clustering_end;
-vector<double> draw_inference;
-vector<double> draw_start;
-vector<double> draw_end;
-vector<double> imshow_inference;
-vector<double> imshow_start;
-vector<double> imshow_end;
+vector<uint64_t> end_ethernet;
+vector<uint64_t> e_clustering;
+vector<uint64_t> start_clustering;
+vector<uint64_t> end_clustering;
+vector<uint64_t> e_draw;
+vector<uint64_t> start_draw;
+vector<uint64_t> end_draw;
+vector<uint64_t> e_display;
+vector<uint64_t> start_display;
+vector<uint64_t> end_display;
 
 
-double get_time_in_ms() {
-  auto now = std::chrono::steady_clock::now();
-  auto duration_since_epoch = now.time_since_epoch();
-  double milliseconds = std::chrono::duration<double, std::milli>(duration_since_epoch).count();
-  return milliseconds;
-}
 
 
 MonitorDemo::MonitorDemo()
@@ -38,6 +34,7 @@ MonitorDemo::MonitorDemo()
   // Information
   RCLCPP_INFO(this->get_logger(), "[Demo] Finish initialization.");
 }
+
 
 MonitorDemo::~MonitorDemo()
 {
@@ -73,6 +70,12 @@ void MonitorDemo::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
   pthread_mutex_unlock(&mutex_image);
 }
 
+uint64_t MonitorDemo::get_time_in_ms() {
+  rclcpp::Time now = this->get_clock()->now();
+  uint64_t nanosecond = now.nanoseconds();
+  return nanosecond/1000;
+}
+
 void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::SharedPtr detections)
 {
   // Select image
@@ -90,10 +93,11 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   if (frame_id >= 1 && frame_id <= 9) {
     detections_received[frame_id - 1] = true; // Mark as received
   }
-
+	
   // Check if all detections have been received
   bool all_received = all_of(detections_received.begin(), detections_received.end(), [](bool received) { return received; });
   if (all_received) {
+    end_ethernet.push_back(get_time_in_ms());
     cerr << "All node are received!" << endl;
   }
   pthread_mutex_unlock(&mutex_receive);
@@ -143,28 +147,28 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   for (const auto& pair : clusterBoxes) {
       cv::rectangle(cv_image->image, pair.second, cv::Scalar(0, 0, 255), 2);
   }
-  draw_end.push_back(get_time_in_ms());
+  end_draw.push_back(get_time_in_ms());
   
-  draw_inference.push_back(draw_end.back() - draw_start.back());
+  e_draw.push_back(end_draw.back() - start_draw.back());
     	
     	
     	
-  imshow_start.push_back(get_time_in_ms());
+  start_display.push_back(get_time_in_ms());
   // Show image
   cv::imshow("After clustering image", cv_image->image);
-  imshow_end.push_back(get_time_in_ms());
-  imshow_inference.push_back(imshow_end.back()-imshow_start.back());
+  cv::waitKey(10);
+  end_display.push_back(get_time_in_ms());
+  e_display.push_back(end_display.back()-start_display.back());
   
   draw_num++;
   if(draw_num ==10) {
       std::ofstream file("clustering_inference.csv");
      
-      file << std::fixed << std::setprecision(6) << "clustering start time\t" << "Inference Time(ms)\t" << "clustering end time\t"<< "draw start time\t" << "Inference Time(ms)\t" << "draw end time\t"<< "imshow start time\t" << "Inference Time(ms)\t" << "imshow end time\n" ;
+      file << std::fixed << std::setprecision(6) << "ethernet end time\t" <<"clustering start time\t" << "Inference Time(ms)\t" << "clustering end time\t"<< "draw start time\t" << "Inference Time(ms)\t" << "draw end time\t"<< "imshow start time\t" << "Inference Time(ms)\t" << "imshow end time\n" ;
       for (int i=0;i<10;i++){
       std::cerr << i << std::endl;
-      file << clustering_start[i] <<"\t"<< clustering_inference[i] << "\t"<< clustering_end[i] << "\t" << draw_start[i] <<"\t"<< draw_inference[i] << "\t"<< draw_end[i] << "\t"<< imshow_start[i] <<"\t"<< imshow_inference[i] << "\t"<< imshow_end[i] << "\n";}
-    	file.close();}
-  cv::waitKey(10);
+      file << end_ethernet[i] << "\t" << start_clustering[i] <<"\t"<< e_clustering[i] << "\t"<< end_clustering[i] << "\t" << start_draw[i] <<"\t"<< e_draw[i] << "\t"<< end_draw[i] << "\t"<< start_display[i] <<"\t"<< e_display[i] << "\t"<< end_display[i] << "\n";}
+   file.close();}
   
   // Save the result image
   save_img(cv_image);
@@ -217,7 +221,7 @@ void MonitorDemo::filterDetections(const std::vector<vision_msgs::msg::Detection
 
 void MonitorDemo::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes, double eps, int minPts) {
     
-    clustering_start.push_back(get_time_in_ms());
+    start_clustering.push_back(get_time_in_ms());
     int clusterId = 0;
     labels.resize(partial_car_bboxes.size(), -1);
 
@@ -239,10 +243,8 @@ void MonitorDemo::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes
         }
         clusterId++;
     }
-    clustering_end.push_back(get_time_in_ms());
-    double inference_time=clustering_end.back() - clustering_start.back();
-    std::cerr << inference_time << std::endl;
-    clustering_inference.push_back(inference_time);
+    end_clustering.push_back(get_time_in_ms());
+    e_clustering.push_back(end_clustering.back() - start_clustering.back());
 }
 
 void MonitorDemo::merge_bbox_with_clustering(const vector<BoundingBox> partial_car_bboxes)
@@ -254,7 +256,7 @@ void MonitorDemo::merge_bbox_with_clustering(const vector<BoundingBox> partial_c
     simpleDBSCAN(partial_car_bboxes, eps, minPts);
 
  
-    draw_start.push_back(get_time_in_ms());
+    start_draw.push_back(get_time_in_ms());
     for (size_t i = 0; i < partial_car_bboxes.size(); ++i) {
         if (labels[i] == -1) continue;
 

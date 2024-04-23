@@ -1,0 +1,381 @@
+[0.000000] (-) TimerEvent: {}
+[0.000664] (monitor) JobQueued: {'identifier': 'monitor', 'dependencies': OrderedDict()}
+[0.001218] (monitor) JobStarted: {'identifier': 'monitor'}
+[0.022131] (monitor) JobProgress: {'identifier': 'monitor', 'progress': 'cmake'}
+[0.023576] (monitor) JobProgress: {'identifier': 'monitor', 'progress': 'build'}
+[0.024834] (monitor) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/avees/RTCSA_2024/src/merger/build/monitor', '--', '-j6', '-l6'], 'cwd': '/home/avees/RTCSA_2024/src/merger/build/monitor', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('USER', 'avees'), ('LC_TIME', 'ko_KR.UTF-8'), ('SSH_AGENT_PID', '2292'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/avees/RTCSA_2024/install/monitor/lib:/home/avees/RTCSA_2024/install/avt_vimba_camera/lib:/home/avees/RTCSA_2024/install/avt_vimba_camera_msgs/lib:/opt/ros/foxy/opt/yaml_cpp_vendor/lib:/opt/ros/foxy/opt/rviz_ogre_vendor/lib:/opt/ros/foxy/lib/aarch64-linux-gnu:/opt/ros/foxy/lib'), ('HOME', '/home/avees'), ('OLDPWD', '/home/avees/RTCSA_2024'), ('DESKTOP_SESSION', 'ubuntu'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('LC_MONETARY', 'ko_KR.UTF-8'), ('MANAGERPID', '1908'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('IM_CONFIG_PHASE', '1'), ('COLCON_PREFIX_PATH', '/home/avees/RTCSA_2024/install'), ('AVEES_CLUSTERING_NODE_ID', '0'), ('ROS_DISTRO', 'foxy'), ('LOGNAME', 'avees'), ('JOURNAL_STREAM', '8:54927'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'avees'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/opt/ros/foxy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'), ('SESSION_MANAGER', 'local/avees-desktop:@/tmp/.ICE-unix/2327,unix/avees-desktop:/tmp/.ICE-unix/2327'), ('INVOCATION_ID', 'de7709a0fc0948e39e4dd833f4d987bb'), ('XDG_MENU_PREFIX', 'gnome-'), ('LC_ADDRESS', 'ko_KR.UTF-8'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/5d370836_9eb6_4642_8cd2_c59270562d68'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('LC_TELEPHONE', 'ko_KR.UTF-8'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.80'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('ROS_DOMAIN_ID', '102'), ('AMENT_PREFIX_PATH', '/home/avees/RTCSA_2024/install/monitor:/home/avees/RTCSA_2024/install/avt_vimba_camera:/home/avees/RTCSA_2024/install/avt_vimba_camera_msgs:/opt/ros/foxy'), ('SHELL', '/bin/bash'), ('LC_NAME', 'ko_KR.UTF-8'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('LC_MEASUREMENT', 'ko_KR.UTF-8'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('LC_IDENTIFICATION', 'ko_KR.UTF-8'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/avees/RTCSA_2024/src/merger/build/monitor'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/avees/RTCSA_2024/install/avt_vimba_camera_msgs/lib/python3.8/site-packages:/opt/ros/foxy/lib/python3.8/site-packages'), ('LC_NUMERIC', 'ko_KR.UTF-8'), ('LC_PAPER', 'ko_KR.UTF-8'), ('COLCON', '1'), ('GENICAM_GENTL64_PATH', ':/opt/Vimba_6_0/VimbaGigETL/CTI/arm_64bit'), ('VTE_VERSION', '6003'), ('CMAKE_PREFIX_PATH', '/home/avees/RTCSA_2024/install/monitor:/home/avees/RTCSA_2024/install/avt_vimba_camera:/home/avees/RTCSA_2024/install/avt_vimba_camera_msgs:/opt/ros/foxy')]), 'shell': False}
+[0.099358] (-) TimerEvent: {}
+[0.135447] (monitor) StdoutLine: {'line': b'\x1b[35m\x1b[1mScanning dependencies of target demo_library\x1b[0m\n'}
+[0.199515] (-) TimerEvent: {}
+[0.220299] (monitor) StdoutLine: {'line': b'[ 25%] \x1b[32mBuilding CXX object CMakeFiles/demo_library.dir/src/demo.cpp.o\x1b[0m\n'}
+[0.299687] (-) TimerEvent: {}
+[0.400373] (-) TimerEvent: {}
+[0.501125] (-) TimerEvent: {}
+[0.601820] (-) TimerEvent: {}
+[0.702604] (-) TimerEvent: {}
+[0.803406] (-) TimerEvent: {}
+[0.904070] (-) TimerEvent: {}
+[1.004789] (-) TimerEvent: {}
+[1.105436] (-) TimerEvent: {}
+[1.206237] (-) TimerEvent: {}
+[1.306968] (-) TimerEvent: {}
+[1.407549] (-) TimerEvent: {}
+[1.508136] (-) TimerEvent: {}
+[1.608778] (-) TimerEvent: {}
+[1.709500] (-) TimerEvent: {}
+[1.810156] (-) TimerEvent: {}
+[1.910785] (-) TimerEvent: {}
+[2.011439] (-) TimerEvent: {}
+[2.112090] (-) TimerEvent: {}
+[2.212731] (-) TimerEvent: {}
+[2.313562] (-) TimerEvent: {}
+[2.414246] (-) TimerEvent: {}
+[2.515149] (-) TimerEvent: {}
+[2.616500] (-) TimerEvent: {}
+[2.717329] (-) TimerEvent: {}
+[2.818050] (-) TimerEvent: {}
+[2.918717] (-) TimerEvent: {}
+[3.019369] (-) TimerEvent: {}
+[3.120082] (-) TimerEvent: {}
+[3.220834] (-) TimerEvent: {}
+[3.321593] (-) TimerEvent: {}
+[3.422267] (-) TimerEvent: {}
+[3.522948] (-) TimerEvent: {}
+[3.623674] (-) TimerEvent: {}
+[3.724426] (-) TimerEvent: {}
+[3.825240] (-) TimerEvent: {}
+[3.926053] (-) TimerEvent: {}
+[4.026800] (-) TimerEvent: {}
+[4.127430] (-) TimerEvent: {}
+[4.228094] (-) TimerEvent: {}
+[4.328820] (-) TimerEvent: {}
+[4.429608] (-) TimerEvent: {}
+[4.530412] (-) TimerEvent: {}
+[4.631072] (-) TimerEvent: {}
+[4.731789] (-) TimerEvent: {}
+[4.832553] (-) TimerEvent: {}
+[4.933209] (-) TimerEvent: {}
+[5.033889] (-) TimerEvent: {}
+[5.134541] (-) TimerEvent: {}
+[5.235213] (-) TimerEvent: {}
+[5.336669] (-) TimerEvent: {}
+[5.437411] (-) TimerEvent: {}
+[5.538071] (-) TimerEvent: {}
+[5.638691] (-) TimerEvent: {}
+[5.739324] (-) TimerEvent: {}
+[5.840010] (-) TimerEvent: {}
+[5.940719] (-) TimerEvent: {}
+[6.041325] (-) TimerEvent: {}
+[6.142089] (-) TimerEvent: {}
+[6.157133] (monitor) StderrLine: {'line': b'\x1b[01m\x1b[K/home/avees/RTCSA_2024/src/merger/src/demo.cpp:\x1b[m\x1b[K In member function \xe2\x80\x98\x1b[01m\x1b[Kvoid MonitorDemo::image_callback(sensor_msgs::msg::Image_<std::allocator<void> >::SharedPtr)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[6.158229] (monitor) StderrLine: {'line': b'\x1b[01m\x1b[K/home/avees/RTCSA_2024/src/merger/src/demo.cpp:47:75:\x1b[m\x1b[K \x1b[01;35m\x1b[Kwarning: \x1b[m\x1b[Kunused parameter \xe2\x80\x98\x1b[01m\x1b[Kimage\x1b[m\x1b[K\xe2\x80\x99 [\x1b[01;35m\x1b[K-Wunused-parameter\x1b[m\x1b[K]\n'}
+[6.158695] (monitor) StderrLine: {'line': b'   47 | void MonitorDemo::image_callback(\x1b[01;35m\x1b[Kconst sensor_msgs::msg::Image::SharedPtr image\x1b[m\x1b[K)\n'}
+[6.159095] (monitor) StderrLine: {'line': b'      |                                  \x1b[01;35m\x1b[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~\x1b[m\x1b[K\n'}
+[6.200676] (monitor) StderrLine: {'line': b'\x1b[01m\x1b[K/home/avees/RTCSA_2024/src/merger/src/demo.cpp:\x1b[m\x1b[K In member function \xe2\x80\x98\x1b[01m\x1b[Kvoid MonitorDemo::simpleDBSCAN(std::vector<BoundingBox>, double, int)\x1b[m\x1b[K\xe2\x80\x99:\n'}
+[6.201679] (monitor) StderrLine: {'line': b'\x1b[01m\x1b[K/home/avees/RTCSA_2024/src/merger/src/demo.cpp:236:30:\x1b[m\x1b[K \x1b[01;35m\x1b[Kwarning: \x1b[m\x1b[Kcomparison of integer expressions of different signedness: \xe2\x80\x98\x1b[01m\x1b[Kstd::vector<long unsigned int>::size_type\x1b[m\x1b[K\xe2\x80\x99 {aka \xe2\x80\x98\x1b[01m\x1b[Klong unsigned int\x1b[m\x1b[K\xe2\x80\x99} and \xe2\x80\x98\x1b[01m\x1b[Kint\x1b[m\x1b[K\xe2\x80\x99 [\x1b[01;35m\x1b[K-Wsign-compare\x1b[m\x1b[K]\n'}
+[6.202521] (monitor) StderrLine: {'line': b'  236 |         if (\x1b[01;35m\x1b[Kneighbors.size() < minPts\x1b[m\x1b[K) continue;\n'}
+[6.205070] (monitor) StderrLine: {'line': b'      |             \x1b[01;35m\x1b[K~~~~~~~~~~~~~~~~~^~~~~~~~\x1b[m\x1b[K\n'}
+[6.242374] (-) TimerEvent: {}
+[6.343552] (-) TimerEvent: {}
+[6.444526] (-) TimerEvent: {}
+[6.545448] (-) TimerEvent: {}
+[6.646202] (-) TimerEvent: {}
+[6.746821] (-) TimerEvent: {}
+[6.847489] (-) TimerEvent: {}
+[6.948081] (-) TimerEvent: {}
+[7.048712] (-) TimerEvent: {}
+[7.149412] (-) TimerEvent: {}
+[7.250001] (-) TimerEvent: {}
+[7.350621] (-) TimerEvent: {}
+[7.451262] (-) TimerEvent: {}
+[7.552053] (-) TimerEvent: {}
+[7.652822] (-) TimerEvent: {}
+[7.753583] (-) TimerEvent: {}
+[7.854358] (-) TimerEvent: {}
+[7.955057] (-) TimerEvent: {}
+[8.055853] (-) TimerEvent: {}
+[8.156587] (-) TimerEvent: {}
+[8.257271] (-) TimerEvent: {}
+[8.358044] (-) TimerEvent: {}
+[8.458799] (-) TimerEvent: {}
+[8.559544] (-) TimerEvent: {}
+[8.660275] (-) TimerEvent: {}
+[8.761049] (-) TimerEvent: {}
+[8.861803] (-) TimerEvent: {}
+[8.962580] (-) TimerEvent: {}
+[9.063361] (-) TimerEvent: {}
+[9.164140] (-) TimerEvent: {}
+[9.264928] (-) TimerEvent: {}
+[9.365738] (-) TimerEvent: {}
+[9.466394] (-) TimerEvent: {}
+[9.567061] (-) TimerEvent: {}
+[9.709293] (-) TimerEvent: {}
+[9.809948] (-) TimerEvent: {}
+[9.910567] (-) TimerEvent: {}
+[10.011179] (-) TimerEvent: {}
+[10.111802] (-) TimerEvent: {}
+[10.212465] (-) TimerEvent: {}
+[10.313226] (-) TimerEvent: {}
+[10.413910] (-) TimerEvent: {}
+[10.514563] (-) TimerEvent: {}
+[10.615337] (-) TimerEvent: {}
+[10.716110] (-) TimerEvent: {}
+[10.816687] (-) TimerEvent: {}
+[10.917310] (-) TimerEvent: {}
+[11.018085] (-) TimerEvent: {}
+[11.118814] (-) TimerEvent: {}
+[11.219537] (-) TimerEvent: {}
+[11.320226] (-) TimerEvent: {}
+[11.421111] (-) TimerEvent: {}
+[11.522310] (-) TimerEvent: {}
+[11.624196] (-) TimerEvent: {}
+[11.725913] (-) TimerEvent: {}
+[11.827022] (-) TimerEvent: {}
+[11.928177] (-) TimerEvent: {}
+[12.029247] (-) TimerEvent: {}
+[12.130376] (-) TimerEvent: {}
+[12.231410] (-) TimerEvent: {}
+[12.332066] (-) TimerEvent: {}
+[12.432736] (-) TimerEvent: {}
+[12.533466] (-) TimerEvent: {}
+[12.634111] (-) TimerEvent: {}
+[12.734772] (-) TimerEvent: {}
+[12.835564] (-) TimerEvent: {}
+[12.936638] (-) TimerEvent: {}
+[13.037279] (-) TimerEvent: {}
+[13.137860] (-) TimerEvent: {}
+[13.238475] (-) TimerEvent: {}
+[13.339137] (-) TimerEvent: {}
+[13.439856] (-) TimerEvent: {}
+[13.540566] (-) TimerEvent: {}
+[13.641239] (-) TimerEvent: {}
+[13.741863] (-) TimerEvent: {}
+[13.842477] (-) TimerEvent: {}
+[13.943214] (-) TimerEvent: {}
+[14.043906] (-) TimerEvent: {}
+[14.144659] (-) TimerEvent: {}
+[14.245277] (-) TimerEvent: {}
+[14.345905] (-) TimerEvent: {}
+[14.446519] (-) TimerEvent: {}
+[14.547137] (-) TimerEvent: {}
+[14.757999] (-) TimerEvent: {}
+[14.858642] (-) TimerEvent: {}
+[14.959275] (-) TimerEvent: {}
+[15.059897] (-) TimerEvent: {}
+[15.160524] (-) TimerEvent: {}
+[15.261143] (-) TimerEvent: {}
+[15.361930] (-) TimerEvent: {}
+[15.463011] (-) TimerEvent: {}
+[15.564015] (-) TimerEvent: {}
+[15.664906] (-) TimerEvent: {}
+[15.765547] (-) TimerEvent: {}
+[15.866294] (-) TimerEvent: {}
+[15.967416] (-) TimerEvent: {}
+[16.068464] (-) TimerEvent: {}
+[16.169616] (-) TimerEvent: {}
+[16.270661] (-) TimerEvent: {}
+[16.371653] (-) TimerEvent: {}
+[16.472543] (-) TimerEvent: {}
+[16.573684] (-) TimerEvent: {}
+[16.674597] (-) TimerEvent: {}
+[16.775498] (-) TimerEvent: {}
+[16.876419] (-) TimerEvent: {}
+[16.977393] (-) TimerEvent: {}
+[17.078321] (-) TimerEvent: {}
+[17.179251] (-) TimerEvent: {}
+[17.280164] (-) TimerEvent: {}
+[17.381111] (-) TimerEvent: {}
+[17.482513] (-) TimerEvent: {}
+[17.584330] (-) TimerEvent: {}
+[17.686873] (-) TimerEvent: {}
+[17.789217] (-) TimerEvent: {}
+[17.890464] (-) TimerEvent: {}
+[17.991455] (-) TimerEvent: {}
+[18.092629] (-) TimerEvent: {}
+[18.193815] (-) TimerEvent: {}
+[18.294924] (-) TimerEvent: {}
+[18.396045] (-) TimerEvent: {}
+[18.497154] (-) TimerEvent: {}
+[18.598248] (-) TimerEvent: {}
+[18.699314] (-) TimerEvent: {}
+[18.800500] (-) TimerEvent: {}
+[18.901629] (-) TimerEvent: {}
+[19.002758] (-) TimerEvent: {}
+[19.103931] (-) TimerEvent: {}
+[19.163788] (monitor) StdoutLine: {'line': b'[ 50%] \x1b[32m\x1b[1mLinking CXX shared library libdemo_library.so\x1b[0m\n'}
+[19.204152] (-) TimerEvent: {}
+[19.305253] (-) TimerEvent: {}
+[19.406903] (-) TimerEvent: {}
+[19.508724] (-) TimerEvent: {}
+[19.610842] (-) TimerEvent: {}
+[19.712528] (-) TimerEvent: {}
+[19.813680] (-) TimerEvent: {}
+[19.914721] (-) TimerEvent: {}
+[20.015737] (-) TimerEvent: {}
+[20.116722] (-) TimerEvent: {}
+[20.217764] (-) TimerEvent: {}
+[20.318829] (-) TimerEvent: {}
+[20.419826] (-) TimerEvent: {}
+[20.475187] (monitor) StdoutLine: {'line': b'[ 50%] Built target demo_library\n'}
+[20.520045] (-) TimerEvent: {}
+[20.621014] (-) TimerEvent: {}
+[20.721993] (-) TimerEvent: {}
+[20.786724] (monitor) StdoutLine: {'line': b'\x1b[35m\x1b[1mScanning dependencies of target demo_node\x1b[0m\n'}
+[20.822197] (-) TimerEvent: {}
+[20.888695] (monitor) StdoutLine: {'line': b'[ 75%] \x1b[32mBuilding CXX object CMakeFiles/demo_node.dir/src/exec/demo_exec.cpp.o\x1b[0m\n'}
+[20.922426] (-) TimerEvent: {}
+[21.023380] (-) TimerEvent: {}
+[21.124347] (-) TimerEvent: {}
+[21.225397] (-) TimerEvent: {}
+[21.326449] (-) TimerEvent: {}
+[21.427612] (-) TimerEvent: {}
+[21.528682] (-) TimerEvent: {}
+[21.629738] (-) TimerEvent: {}
+[21.730791] (-) TimerEvent: {}
+[21.831854] (-) TimerEvent: {}
+[21.932890] (-) TimerEvent: {}
+[22.034123] (-) TimerEvent: {}
+[22.135270] (-) TimerEvent: {}
+[22.236721] (-) TimerEvent: {}
+[22.338099] (-) TimerEvent: {}
+[22.439400] (-) TimerEvent: {}
+[22.540524] (-) TimerEvent: {}
+[22.641819] (-) TimerEvent: {}
+[22.743000] (-) TimerEvent: {}
+[22.843997] (-) TimerEvent: {}
+[22.944952] (-) TimerEvent: {}
+[23.045989] (-) TimerEvent: {}
+[23.146995] (-) TimerEvent: {}
+[23.247994] (-) TimerEvent: {}
+[23.348950] (-) TimerEvent: {}
+[23.450057] (-) TimerEvent: {}
+[23.551129] (-) TimerEvent: {}
+[23.652291] (-) TimerEvent: {}
+[23.753567] (-) TimerEvent: {}
+[23.854730] (-) TimerEvent: {}
+[23.955848] (-) TimerEvent: {}
+[24.057031] (-) TimerEvent: {}
+[24.158154] (-) TimerEvent: {}
+[24.259214] (-) TimerEvent: {}
+[24.360383] (-) TimerEvent: {}
+[24.461628] (-) TimerEvent: {}
+[24.563025] (-) TimerEvent: {}
+[24.664304] (-) TimerEvent: {}
+[24.765526] (-) TimerEvent: {}
+[24.866468] (-) TimerEvent: {}
+[24.967508] (-) TimerEvent: {}
+[25.068609] (-) TimerEvent: {}
+[25.169783] (-) TimerEvent: {}
+[25.270831] (-) TimerEvent: {}
+[25.371775] (-) TimerEvent: {}
+[25.472691] (-) TimerEvent: {}
+[25.573787] (-) TimerEvent: {}
+[25.674709] (-) TimerEvent: {}
+[25.775655] (-) TimerEvent: {}
+[25.876570] (-) TimerEvent: {}
+[25.977522] (-) TimerEvent: {}
+[26.078493] (-) TimerEvent: {}
+[26.179495] (-) TimerEvent: {}
+[26.280507] (-) TimerEvent: {}
+[26.381558] (-) TimerEvent: {}
+[26.482842] (-) TimerEvent: {}
+[26.583853] (-) TimerEvent: {}
+[26.684858] (-) TimerEvent: {}
+[26.785955] (-) TimerEvent: {}
+[26.887132] (-) TimerEvent: {}
+[26.988237] (-) TimerEvent: {}
+[27.089334] (-) TimerEvent: {}
+[27.190360] (-) TimerEvent: {}
+[27.291374] (-) TimerEvent: {}
+[27.392434] (-) TimerEvent: {}
+[27.493553] (-) TimerEvent: {}
+[27.594604] (-) TimerEvent: {}
+[27.695651] (-) TimerEvent: {}
+[27.797098] (-) TimerEvent: {}
+[27.898312] (-) TimerEvent: {}
+[27.999595] (-) TimerEvent: {}
+[28.100882] (-) TimerEvent: {}
+[28.202151] (-) TimerEvent: {}
+[28.303337] (-) TimerEvent: {}
+[28.404322] (-) TimerEvent: {}
+[28.505476] (-) TimerEvent: {}
+[28.606810] (-) TimerEvent: {}
+[28.708554] (-) TimerEvent: {}
+[28.810000] (-) TimerEvent: {}
+[28.911008] (-) TimerEvent: {}
+[29.012004] (-) TimerEvent: {}
+[29.112989] (-) TimerEvent: {}
+[29.214008] (-) TimerEvent: {}
+[29.315081] (-) TimerEvent: {}
+[29.416123] (-) TimerEvent: {}
+[29.517134] (-) TimerEvent: {}
+[29.618182] (-) TimerEvent: {}
+[29.719194] (-) TimerEvent: {}
+[29.820541] (-) TimerEvent: {}
+[29.921538] (-) TimerEvent: {}
+[30.022467] (-) TimerEvent: {}
+[30.123584] (-) TimerEvent: {}
+[30.224740] (-) TimerEvent: {}
+[30.325943] (-) TimerEvent: {}
+[30.427084] (-) TimerEvent: {}
+[30.528194] (-) TimerEvent: {}
+[30.629391] (-) TimerEvent: {}
+[30.730573] (-) TimerEvent: {}
+[30.832134] (-) TimerEvent: {}
+[30.933393] (-) TimerEvent: {}
+[31.034576] (-) TimerEvent: {}
+[31.135785] (-) TimerEvent: {}
+[31.207939] (monitor) StdoutLine: {'line': b'[100%] \x1b[32m\x1b[1mLinking CXX executable demo_node\x1b[0m\n'}
+[31.235990] (-) TimerEvent: {}
+[31.337052] (-) TimerEvent: {}
+[31.438012] (-) TimerEvent: {}
+[31.539474] (-) TimerEvent: {}
+[31.640840] (-) TimerEvent: {}
+[31.743094] (-) TimerEvent: {}
+[31.844729] (-) TimerEvent: {}
+[31.946511] (-) TimerEvent: {}
+[32.048436] (-) TimerEvent: {}
+[32.150156] (-) TimerEvent: {}
+[32.251385] (-) TimerEvent: {}
+[32.352670] (-) TimerEvent: {}
+[32.453995] (-) TimerEvent: {}
+[32.555265] (-) TimerEvent: {}
+[32.656589] (-) TimerEvent: {}
+[32.757884] (-) TimerEvent: {}
+[32.859589] (-) TimerEvent: {}
+[32.960655] (-) TimerEvent: {}
+[32.988961] (monitor) StdoutLine: {'line': b'[100%] Built target demo_node\n'}
+[33.060871] (-) TimerEvent: {}
+[33.140088] (monitor) CommandEnded: {'returncode': 0}
+[33.161128] (-) TimerEvent: {}
+[33.207738] (monitor) JobProgress: {'identifier': 'monitor', 'progress': 'install'}
+[33.240160] (monitor) Command: {'cmd': ['/usr/bin/cmake', '--install', '/home/avees/RTCSA_2024/src/merger/build/monitor'], 'cwd': '/home/avees/RTCSA_2024/src/merger/build/monitor', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('USER', 'avees'), ('LC_TIME', 'ko_KR.UTF-8'), ('SSH_AGENT_PID', '2292'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/avees/RTCSA_2024/install/monitor/lib:/home/avees/RTCSA_2024/install/avt_vimba_camera/lib:/home/avees/RTCSA_2024/install/avt_vimba_camera_msgs/lib:/opt/ros/foxy/opt/yaml_cpp_vendor/lib:/opt/ros/foxy/opt/rviz_ogre_vendor/lib:/opt/ros/foxy/lib/aarch64-linux-gnu:/opt/ros/foxy/lib'), ('HOME', '/home/avees'), ('OLDPWD', '/home/avees/RTCSA_2024'), ('DESKTOP_SESSION', 'ubuntu'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('LC_MONETARY', 'ko_KR.UTF-8'), ('MANAGERPID', '1908'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('IM_CONFIG_PHASE', '1'), ('COLCON_PREFIX_PATH', '/home/avees/RTCSA_2024/install'), ('AVEES_CLUSTERING_NODE_ID', '0'), ('ROS_DISTRO', 'foxy'), ('LOGNAME', 'avees'), ('JOURNAL_STREAM', '8:54927'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'avees'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/opt/ros/foxy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'), ('SESSION_MANAGER', 'local/avees-desktop:@/tmp/.ICE-unix/2327,unix/avees-desktop:/tmp/.ICE-unix/2327'), ('INVOCATION_ID', 'de7709a0fc0948e39e4dd833f4d987bb'), ('XDG_MENU_PREFIX', 'gnome-'), ('LC_ADDRESS', 'ko_KR.UTF-8'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/5d370836_9eb6_4642_8cd2_c59270562d68'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('LC_TELEPHONE', 'ko_KR.UTF-8'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.80'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('ROS_DOMAIN_ID', '102'), ('AMENT_PREFIX_PATH', '/home/avees/RTCSA_2024/install/monitor:/home/avees/RTCSA_2024/install/avt_vimba_camera:/home/avees/RTCSA_2024/install/avt_vimba_camera_msgs:/opt/ros/foxy'), ('SHELL', '/bin/bash'), ('LC_NAME', 'ko_KR.UTF-8'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('LC_MEASUREMENT', 'ko_KR.UTF-8'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('LC_IDENTIFICATION', 'ko_KR.UTF-8'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/avees/RTCSA_2024/src/merger/build/monitor'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/avees/RTCSA_2024/install/avt_vimba_camera_msgs/lib/python3.8/site-packages:/opt/ros/foxy/lib/python3.8/site-packages'), ('LC_NUMERIC', 'ko_KR.UTF-8'), ('LC_PAPER', 'ko_KR.UTF-8'), ('COLCON', '1'), ('GENICAM_GENTL64_PATH', ':/opt/Vimba_6_0/VimbaGigETL/CTI/arm_64bit'), ('VTE_VERSION', '6003'), ('CMAKE_PREFIX_PATH', '/home/avees/RTCSA_2024/install/monitor:/home/avees/RTCSA_2024/install/avt_vimba_camera:/home/avees/RTCSA_2024/install/avt_vimba_camera_msgs:/opt/ros/foxy')]), 'shell': False}
+[33.261421] (-) TimerEvent: {}
+[33.362617] (-) TimerEvent: {}
+[33.407749] (monitor) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[33.415757] (monitor) StdoutLine: {'line': b'-- Installing: /home/avees/RTCSA_2024/src/merger/install/monitor/lib/libdemo_library.so\n'}
+[33.428001] (monitor) StdoutLine: {'line': b'-- Set runtime path of "/home/avees/RTCSA_2024/src/merger/install/monitor/lib/libdemo_library.so" to ""\n'}
+[33.462842] (-) TimerEvent: {}
+[33.564036] (-) TimerEvent: {}
+[33.568074] (monitor) StdoutLine: {'line': b'-- Installing: /home/avees/RTCSA_2024/src/merger/install/monitor/lib/monitor/demo_node\n'}
+[33.569309] (monitor) StdoutLine: {'line': b'-- Set runtime path of "/home/avees/RTCSA_2024/src/merger/install/monitor/lib/monitor/demo_node" to ""\n'}
+[33.569808] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/ament_index/resource_index/package_run_dependencies/monitor\n'}
+[33.571256] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/ament_index/resource_index/parent_prefix_path/monitor\n'}
+[33.571533] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/environment/ament_prefix_path.sh\n'}
+[33.571833] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/environment/ament_prefix_path.dsv\n'}
+[33.572068] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/environment/path.sh\n'}
+[33.572404] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/environment/path.dsv\n'}
+[33.572665] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/local_setup.bash\n'}
+[33.572905] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/local_setup.sh\n'}
+[33.573116] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/local_setup.zsh\n'}
+[33.573318] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/local_setup.dsv\n'}
+[33.573578] (monitor) StdoutLine: {'line': b'-- Installing: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/package.dsv\n'}
+[33.573819] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/ament_index/resource_index/packages/monitor\n'}
+[33.574234] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/cmake/monitorConfig.cmake\n'}
+[33.574847] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/cmake/monitorConfig-version.cmake\n'}
+[33.575131] (monitor) StdoutLine: {'line': b'-- Up-to-date: /home/avees/RTCSA_2024/src/merger/install/monitor/share/monitor/package.xml\n'}
+[33.579877] (monitor) CommandEnded: {'returncode': 0}
+[33.664421] (-) TimerEvent: {}
+[33.765753] (-) TimerEvent: {}
+[33.770706] (monitor) JobEnded: {'identifier': 'monitor', 'rc': 0}
+[33.773743] (-) EventReactorShutdown: {}
