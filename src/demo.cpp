@@ -187,10 +187,10 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 	
 	if(draw_num == EXP_NUM) {
 	     	for(int i=0 ; i<EXP_NUM; i++){		
-			e_waiting_all_received[i] = end_waiting_all_received[i] - start_waiting_all_received[i];
-			e_merge[i] = end_merge[i] - start_merge[i];
-			e_draw[i] = end_draw[i] - start_draw[i];
-			e_display[i] = end_display[i]-start_display[i];
+			e_waiting_all_received.push_back(end_waiting_all_received[i] - start_waiting_all_received[i]);
+			e_merge.push_back(end_merge[i] - start_merge[i]);
+			e_draw.push_back(end_draw[i] - start_draw[i]);
+			e_display.push_back(end_display[i]-start_display[i]);
 		}
 		
 		std::ofstream file1("master_node.csv");
