@@ -97,7 +97,8 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 
   RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
   
-  detection_list.push_back(detections);
+  detection_list[frame_id - 1] = detections;
+  
   if (frame_id >= 1 && frame_id <= TOTAL_NUM_OF_NODES) {
 	detections_received[frame_id - 1] = true; // Mark as received
 	status.push_back(0);
@@ -169,41 +170,64 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 
 	cv::imshow("After merge image", cv_image->image);
 	cv::waitKey(10);
-	
-	end_display.push_back(get_time_in_ms());
-
-
-	e_waiting_all_received.push_back(end_waiting_all_received.back() - start_waiting_all_received.back());
-	e_merge.push_back(end_merge.back() - start_merge.back());
-	e_draw.push_back(end_draw.back() - start_draw.back());
-	e_display.push_back(end_display.back()-start_display.back());
-
-	draw_num++;
-	if(draw_num ==EXP_NUM) {
-	std::ofstream file1("master_node.csv");
-
-	file1 << std::fixed << std::setprecision(6) << "start_waiting_all_received\t" <<"e_waiting_all_received(us)\t" << "end_waiting_all_received\t"<< "end_ethernet\t" <<"start_merge\t" << "e_merge(us)\t" << "end_merge\t"<< "start_draw\t" << "e_draw(us)\t" << "end_draw\t"<< "start_display\t" << "e_display(us)\t" << "end_display\n" ;
-
-	for (int i=0;i<draw_num;i++){
-	file1 <<start_waiting_all_received[i]<<"\t" <<e_waiting_all_received[i]<<"\t" << end_waiting_all_received[i]<<"\t"<<end_ethernet[i] << "\t" << start_merge[i] <<"\t"<< e_merge[i] << "\t"<< end_merge[i] << "\t" << start_draw[i] <<"\t"<< e_draw[i] << "\t"<< end_draw[i] << "\t"<< start_display[i] <<"\t"<< e_display[i] << "\t"<< end_display[i] << "\n";}
-	file1.close();
-
-	std::ofstream file2("master_node_ethernet.csv");
-	file2 << std::fixed << std::setprecision(6) << "node_index\t" << "end_ethernet\t"<<"status\n" ;
-	for (int i=0;i<draw_num*TOTAL_NUM_OF_NODES;i++){
-	cerr << i << endl;
-	file2 << node_index[i] << "\t" << node_end_ethernet[i] <<"\t"<< status[i] << "\n";}
-	file2.close();}
 
 	// Save the result image
 	save_img(cv_image);
+	
+	end_display.push_back(get_time_in_ms());
 
+	// Initialize all values
 	fill(detections_received.begin(), detections_received.end(), false);
-
-
-	detection_list.clear();
+	// detection_list.clear();
 	labels.clear();
 	clusterBoxes.clear();
+
+
+	draw_num++;
+	
+	if(draw_num == EXP_NUM) {
+	     	for(int i=0 ; i<EXP_NUM; i++){		
+			e_waiting_all_received[i] = end_waiting_all_received[i] - start_waiting_all_received[i];
+			e_merge[i] = end_merge[i] - start_merge[i];
+			e_draw[i] = end_draw[i] - start_draw[i];
+			e_display[i] = end_display[i]-start_display[i];
+		}
+		
+		std::ofstream file1("master_node.csv");
+
+		file1 << std::fixed << std::setprecision(6) 
+			<< "start_waiting_all_received\t" << "e_waiting_all_received(us)\t" << "end_waiting_all_received\t"
+			<< "end_ethernet\t" 
+			<< "start_merge\t" << "e_merge(us)\t" << "end_merge\t"
+			<< "start_draw\t" << "e_draw(us)\t" << "end_draw\t"
+			<< "start_display\t" << "e_display(us)\t" << "end_display\n" ;
+
+		for (int i=0;i<draw_num;i++){
+			file1 << start_waiting_all_received[i]<<"\t" << e_waiting_all_received[i] << "\t" << end_waiting_all_received[i]
+				<< "\t" << end_ethernet[i] << "\t" << start_merge[i] << "\t" << e_merge[i] << "\t" << end_merge[i] 
+				<< "\t" << start_draw[i] << "\t" << e_draw[i] << "\t" << end_draw[i] 
+				<< "\t" << start_display[i] << "\t" << e_display[i] << "\t" << end_display[i] << "\n";
+		}
+		
+		file1.close();
+
+		std::ofstream file2("master_node_ethernet.csv");
+		
+		file2 << std::fixed << std::setprecision(6) << "node_index\t" << "end_ethernet\t"<<"status\n" ;
+		
+		for (int i=0;i<draw_num*TOTAL_NUM_OF_NODES;i++){
+			file2 << node_index[i] << "\t" << node_end_ethernet[i] <<"\t"<< status[i] << "\n";
+		}
+		
+		file2.close();
+		
+		cerr << "write result at " << "./master_node.csv" << endl;
+		cerr << "write result at " << "./master_node_ethernet.csv" << endl;
+		
+		exit(0);
+	}
+
+
   }
   pthread_mutex_unlock(&mutex_receive_check);
 
