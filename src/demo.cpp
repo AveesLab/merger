@@ -110,7 +110,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 		status.pop_back();
 		status.push_back(1);
 
-		cerr << "All node are received!" << endl;
+		cerr << draw_num << "All node are received!" << endl;
 	}
   }
   end_waiting_all_received.push_back(get_time_in_ms());

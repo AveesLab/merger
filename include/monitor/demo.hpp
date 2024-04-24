@@ -39,7 +39,6 @@ using namespace std;
 
 #define TOTAL_NUM_OF_NODES 9
 #define EXP_NUM 100
-
 bool all_received;
 
 pthread_mutex_t mutex_receive_check;
