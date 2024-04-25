@@ -29,6 +29,7 @@ MonitorDemo::MonitorDemo()
 
   // Information
   RCLCPP_INFO(this->get_logger(), "Initialization Start.");
+  start_waiting_all_received.push_back(0);
 
   rclcpp::QoS QOS_RKL10V = rclcpp::QoS(rclcpp::KeepLast(10)).reliable().durability_volatile();
 
@@ -89,7 +90,6 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 
   pthread_mutex_lock(&mutex_receive);
   // waiting_all_received
-  start_waiting_all_received.push_back(get_time_in_ms());
   int frame_id = stoi(detections->header.frame_id);
   node_index.push_back(frame_id);
   node_end_ethernet.push_back(get_time_in_ms());
@@ -111,9 +111,10 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 		status.push_back(1);
 
 		cerr << draw_num << "All node are received!" << endl;
+		end_waiting_all_received.push_back(get_time_in_ms());
 	}
   }
-  end_waiting_all_received.push_back(get_time_in_ms());
+  
   
   pthread_mutex_unlock(&mutex_receive);
   
@@ -181,7 +182,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 	// detection_list.clear();
 	labels.clear();
 	clusterBoxes.clear();
-
+        start_waiting_all_received.push_back(get_time_in_ms());
 
 	draw_num++;
 	

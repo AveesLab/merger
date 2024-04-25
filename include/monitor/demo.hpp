@@ -38,7 +38,7 @@ using namespace std;
 #include "std_msgs/msg/header.hpp"
 
 #define TOTAL_NUM_OF_NODES 9
-#define EXP_NUM 100
+#define EXP_NUM 200
 bool all_received;
 
 pthread_mutex_t mutex_receive_check;
