@@ -29,7 +29,6 @@ MonitorDemo::MonitorDemo()
 
   // Information
   RCLCPP_INFO(this->get_logger(), "Initialization Start.");
-  start_waiting_all_received.push_back(0);
 
   rclcpp::QoS QOS_RKL10V = rclcpp::QoS(rclcpp::KeepLast(10)).reliable().durability_volatile();
 
@@ -90,6 +89,9 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 
   pthread_mutex_lock(&mutex_receive);
   // waiting_all_received
+  if (all_of(detections_received.begin(), detections_received.end(), [](bool received) { return !received; })) {
+  	start_waiting_all_received.push_back(get_time_in_ms());
+  }
   int frame_id = stoi(detections->header.frame_id);
   node_index.push_back(frame_id);
   node_end_ethernet.push_back(get_time_in_ms());
@@ -170,10 +172,10 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 	start_display.push_back(get_time_in_ms());
 
 	cv::imshow("After merge image", cv_image->image);
-	cv::waitKey(10);
+	cv::waitKey(1);
 
 	// Save the result image
-	save_img(cv_image);
+	//save_img(cv_image);
 	
 	end_display.push_back(get_time_in_ms());
 
@@ -182,7 +184,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 	// detection_list.clear();
 	labels.clear();
 	clusterBoxes.clear();
-        start_waiting_all_received.push_back(get_time_in_ms());
+
 
 	draw_num++;
 	
