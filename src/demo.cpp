@@ -149,16 +149,10 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 
 	// Draw bounding boxes
 	start_draw.push_back(get_time_in_ms());
-
-	draw_image(cv_image, detection_list[0]);
-	draw_image(cv_image, detection_list[1]);
-	draw_image(cv_image, detection_list[2]);
-	draw_image(cv_image, detection_list[3]);
-	draw_image(cv_image, detection_list[4]);
-	draw_image(cv_image, detection_list[5]);
-	draw_image(cv_image, detection_list[6]);
-	draw_image(cv_image, detection_list[7]);
-	draw_image(cv_image, detection_list[8]);
+	
+	for (int node_id = 0; node_id < TOTAL_NUM_OF_NODES; node_id++){
+		draw_image(cv_image, detection_list[node_id]);
+	}
 
 	// draw_map(cv_image, clusterBoxes);
 	for (const auto& pair : clusterBoxes) {
