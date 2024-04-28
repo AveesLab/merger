@@ -193,27 +193,27 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 		std::ofstream file1("master_node.csv");
 
 		file1 << std::fixed << std::setprecision(6) 
-			<< "start_waiting_all_received\t" << "e_waiting_all_received(us)\t" << "end_waiting_all_received\t"
-			<< "end_ethernet\t" 
-			<< "start_merge\t" << "e_merge(us)\t" << "end_merge\t"
-			<< "start_draw\t" << "e_draw(us)\t" << "end_draw\t"
-			<< "start_display\t" << "e_display(us)\t" << "end_display\n" ;
+			<< "start_waiting_all_received," << "e_waiting_all_received(us)," << "end_waiting_all_received,"
+			<< "end_ethernet," 
+			<< "start_merge," << "e_merge(us)," << "end_merge,"
+			<< "start_draw," << "e_draw(us)," << "end_draw,"
+			<< "start_display," << "e_display(us)," << "end_display\n" ;
 
 		for (int i=0;i<draw_num;i++){
-			file1 << start_waiting_all_received[i]<<"\t" << e_waiting_all_received[i] << "\t" << end_waiting_all_received[i]
-				<< "\t" << end_ethernet[i] << "\t" << start_merge[i] << "\t" << e_merge[i] << "\t" << end_merge[i] 
-				<< "\t" << start_draw[i] << "\t" << e_draw[i] << "\t" << end_draw[i] 
-				<< "\t" << start_display[i] << "\t" << e_display[i] << "\t" << end_display[i] << "\n";
+			file1 << start_waiting_all_received[i]<<"," << e_waiting_all_received[i] << "," << end_waiting_all_received[i]
+				<< "," << end_ethernet[i] << "," << start_merge[i] << "," << e_merge[i] << "," << end_merge[i] 
+				<< "," << start_draw[i] << "," << e_draw[i] << "," << end_draw[i] 
+				<< "," << start_display[i] << "," << e_display[i] << "," << end_display[i] << "\n";
 		}
 		
 		file1.close();
 
 		std::ofstream file2("master_node_ethernet.csv");
 		
-		file2 << std::fixed << std::setprecision(6) << "node_index\t" << "end_ethernet\t"<<"status\n" ;
+		file2 << std::fixed << std::setprecision(6) << "node_index," << "end_ethernet,"<<"status\n" ;
 		
 		for (int i=0;i<draw_num*TOTAL_NUM_OF_NODES;i++){
-			file2 << node_index[i] << "\t" << node_end_ethernet[i] <<"\t"<< status[i] << "\n";
+			file2 << node_index[i] << "," << node_end_ethernet[i] <<","<< status[i] << "\n";
 		}
 		
 		file2.close();
