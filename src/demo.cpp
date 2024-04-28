@@ -97,7 +97,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   node_end_ethernet.push_back(get_time_in_ms());
   
 
-  RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
+  // RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
   
   detection_list[frame_id - 1] = detections;
   
