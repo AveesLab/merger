@@ -31,8 +31,8 @@ find_package(Threads REQUIRED)
 include_directories(include)
 
 # Build
-add_executable(demo_node src/exec/demo_exec.cpp)
-ament_target_dependencies(demo_node
+add_executable(demo_node1 src/exec/demo_exec1.cpp)
+ament_target_dependencies(demo_node1
   rclcpp
   std_msgs
   sensor_msgs
@@ -41,8 +41,8 @@ ament_target_dependencies(demo_node
   Threads
 )
 
-add_library(demo_library SHARED src/demo.cpp)
-ament_target_dependencies(demo_library
+add_library(demo_library1 SHARED src/demo1.cpp)
+ament_target_dependencies(demo_library1
   rclcpp
   std_msgs
   sensor_msgs
@@ -51,20 +51,72 @@ ament_target_dependencies(demo_library
   Threads
 )
 
-target_link_libraries(demo_node
-  demo_library
+target_link_libraries(demo_node1
+  demo_library1
+  pcanbasic
+)
+add_executable(demo_node2 src/exec/demo_exec2.cpp)
+ament_target_dependencies(demo_node2
+  rclcpp
+  std_msgs
+  sensor_msgs
+  vision_msgs
+  cv_bridge
+  Threads
+)
+
+add_library(demo_library2 SHARED src/demo2.cpp)
+ament_target_dependencies(demo_library2
+  rclcpp
+  std_msgs
+  sensor_msgs
+  vision_msgs
+  cv_bridge
+  Threads
+)
+
+target_link_libraries(demo_node2
+  demo_library2
   pcanbasic
 )
 
+add_executable(demo_node3 src/exec/demo_exec3.cpp)
+ament_target_dependencies(demo_node3
+  rclcpp
+  std_msgs
+  sensor_msgs
+  vision_msgs
+  cv_bridge
+  Threads
+)
+
+add_library(demo_library3 SHARED src/demo3.cpp)
+ament_target_dependencies(demo_library3
+  rclcpp
+  std_msgs
+  sensor_msgs
+  vision_msgs
+  cv_bridge
+  Threads
+)
+
+target_link_libraries(demo_node3
+  demo_library3
+  pcanbasic
+)
 install(TARGETS
-  demo_library
+  demo_library1
+  demo_library2
+  demo_library3
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
 
 install(TARGETS
-  demo_node
+  demo_node1
+  demo_node2
+  demo_node3
   DESTINATION lib/${PROJECT_NAME}
 )
 
