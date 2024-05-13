@@ -42,7 +42,8 @@ using namespace std;
 bool all_received;
 
 pthread_mutex_t mutex_receive_check;
-vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list(9);
+pthread_mutex_t mutex_init;
+vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list(TOTAL_NUM_OF_NODES);
 
 map<int, cv::Rect> clusterBoxes;
 vector<int> labels;
@@ -80,6 +81,9 @@ private:
   // mutex
   pthread_mutex_t mutex_image;
   pthread_mutex_t mutex_receive;
+  pthread_mutex_t mutex_init;
+   
+
 };
 
 

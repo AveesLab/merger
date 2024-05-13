@@ -90,18 +90,17 @@ void MonitorDemo1::detections_receive(const vision_msgs::msg::Detection2DArray::
   pthread_mutex_lock(&mutex_receive);
   // waiting_all_received
   if (all_of(detections_received.begin(), detections_received.end(), [](bool received) { return !received; })) {
-  	start_waiting_all_received.push_back(get_time_in_ms());
+  	//start_waiting_all_received.push_back(get_time_in_ms());
   }
   int frame_id = stoi(detections1->header.frame_id);
-  cerr << frame_id << endl;
   node_index.push_back(frame_id);
-  node_end_ethernet.push_back(get_time_in_ms());
+  //node_end_ethernet.push_back(get_time_in_ms());
   
 
   RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections1->header.frame_id.c_str(), detections1->detections.size(), rclcpp::Time(detections1->header.stamp).seconds());
   
   detection_list[frame_id - 1] = detections1;
-  
+
   if (frame_id >= 1 && frame_id <= TOTAL_NUM_OF_NODES) {
 	detections_received[frame_id - 1] = true; // Mark as received
 	status.push_back(0);
@@ -109,12 +108,12 @@ void MonitorDemo1::detections_receive(const vision_msgs::msg::Detection2DArray::
 	all_received = all_of(detections_received.begin(), detections_received.end(), [](bool received) { return received; });
 	
 	if (all_received) {
-		end_ethernet.push_back(node_end_ethernet.back());
+		//end_ethernet.push_back(node_end_ethernet.back());
 		status.pop_back();
 		status.push_back(1);
 
 		cerr << draw_num << "All node are received!" << endl;
-		end_waiting_all_received.push_back(get_time_in_ms());
+		//end_waiting_all_received.push_back(get_time_in_ms());
 	}
   }
   
@@ -127,7 +126,7 @@ void MonitorDemo1::detections_receive(const vision_msgs::msg::Detection2DArray::
 
   if (all_received) {
 	// merge with clustering 
-	start_merge.push_back(get_time_in_ms());
+	//start_merge.push_back(get_time_in_ms());
 
 	pthread_mutex_lock(&mutex_image);
 
@@ -138,52 +137,49 @@ void MonitorDemo1::detections_receive(const vision_msgs::msg::Detection2DArray::
 	return;
 	}
 	pthread_mutex_unlock(&mutex_image);
-
-
-	vector<BoundingBox> partial_car_bboxes;
-	filterDetections(detection_list, partial_car_bboxes);
-	merge_bbox_with_clustering(partial_car_bboxes);
-
-	end_merge.push_back(get_time_in_ms());
+	//vector<BoundingBox> partial_car_bboxes;
+	//filterDetections(detection_list, partial_car_bboxes);
+	//merge_bbox_with_clustering(partial_car_bboxes);
+	//end_merge.push_back(get_time_in_ms());
 
 
 	// Draw bounding boxes
-	start_draw.push_back(get_time_in_ms());
-	
+	//start_draw.push_back(get_time_in_ms());
 	for (int node_id = 0; node_id < TOTAL_NUM_OF_NODES; node_id++){
 		draw_image(cv_image, detection_list[node_id]);
 	}
 
 	// draw_map(cv_image, clusterBoxes);
-	for (const auto& pair : clusterBoxes) {
-	cv::rectangle(cv_image->image, pair.second, cv::Scalar(0, 0, 255), 2);
-	}
+	//for (const auto& pair : clusterBoxes) {
+	//cv::rectangle(cv_image->image, pair.second, cv::Scalar(0, 0, 255), 2);
+	//}
 
-	end_draw.push_back(get_time_in_ms());
-
+	//end_draw.push_back(get_time_in_ms());
 
 	// Show image
-	start_display.push_back(get_time_in_ms());
-
-	cv::imshow("After merge image", cv_image->image);
-	cv::waitKey(1);
-
-	// Save the result image
+	//start_display.push_back(get_time_in_ms());
+	//cv::imshow("After merge image", cv_image->image);
+	//cv::waitKey(1);
+	//Save the result image
 	//save_img(cv_image);
 	
-	end_display.push_back(get_time_in_ms());
-
+	//end_display.push_back(get_time_in_ms());
+	
+	//pthread_mutex_lock(&mutex_init);
 	// Initialize all values
 	fill(detections_received.begin(), detections_received.end(), false);
-	cerr << detections_received.back() <<endl;
-	// detection_list.clear();
+	detection_list.clear();
 	labels.clear();
-	clusterBoxes.clear();
+	//pthread_mutex_unlock(&mutex_init);
+	
+	
+	
+	//clusterBoxes.clear();
 
 
 	draw_num++;
 	
-	if(draw_num == EXP_NUM) {
+/*	if(draw_num == EXP_NUM) {
 	     	for(int i=0 ; i<EXP_NUM; i++){		
 			e_waiting_all_received.push_back(end_waiting_all_received[i] - start_waiting_all_received[i]);
 			e_merge.push_back(end_merge[i] - start_merge[i]);
@@ -223,7 +219,7 @@ void MonitorDemo1::detections_receive(const vision_msgs::msg::Detection2DArray::
 		cerr << "write result at " << "./master_node_ethernet.csv" << endl;
 		
 		exit(0);
-	}
+	}*/
 
 
   }
@@ -248,12 +244,13 @@ void MonitorDemo1::draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs:
   }
 }
 
-void MonitorDemo1::filterDetections(const std::vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list,
+/*void MonitorDemo1::filterDetections(const std::vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list,
                       std::vector<BoundingBox>& partial_car_bboxes) {
     for (const auto& detections : detection_list) { // detection_list 순회
         for (const auto& detection : detections->detections) { // 각 Detection2DArray 내의 Detection2D 순회
             if (detection.tracking_id == "1") { // tracking_id가 "1"인 경우
-                // Detection2D의 바운딩 박스 정보를 BoundingBox 구조체로 변환                                                                                                         
+                // Detection2D의 바운딩 박스 정보를 BoundingBox 구조체로 변환              
+                                                                                                           
                 BoundingBox box;
                 box.centerX = detection.bbox.center.x;
                 box.centerY = detection.bbox.center.y;
@@ -328,4 +325,4 @@ void MonitorDemo1::save_img(cv_bridge::CvImagePtr cv_image) {
     string fullPath = file_path + fileName;
 
     cv::imwrite(fullPath, cv_image->image);
-}
+}*/
