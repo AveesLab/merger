@@ -90,11 +90,11 @@ void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::
   pthread_mutex_lock(&mutex_received);
   // waiting_all_received
   if (all_of(detections_received.begin(), detections_received.end(), [](bool received) { return !received; })) {
-  	//start_waiting_all_received.push_back(get_time_in_ms());
+  	start_waiting_all_received.push_back(get_time_in_ms());
   }
   int frame_id = stoi(detections2->header.frame_id);
   node_index.push_back(frame_id);
-  //node_end_ethernet.push_back(get_time_in_ms());
+  node_end_ethernet.push_back(get_time_in_ms());
   
  RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections2->header.frame_id.c_str(), detections2->detections.size(), rclcpp::Time(detections2->header.stamp).seconds());
   
@@ -106,12 +106,12 @@ void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::
 	all_received = all_of(detections_received.begin(), detections_received.end(), [](bool received) { return received; });
 	
 	if (all_received) {
-		//end_ethernet.push_back(node_end_ethernet.back());
+		end_ethernet.push_back(node_end_ethernet.back());
 		status.pop_back();
 		status.push_back(1);
 
 		cerr << draw_num << "All node are received!" << endl;
-		//end_waiting_all_received.push_back(get_time_in_ms());
+		end_waiting_all_received.push_back(get_time_in_ms());
 	}
   }
   
@@ -124,7 +124,7 @@ void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::
 
   if (all_received) {
 	// merge with clustering 
-	// start_merge.push_back(get_time_in_ms());
+	start_merge.push_back(get_time_in_ms());
 
 	pthread_mutex_lock(&mutex_image);
 	cv::Mat loaded_image = cv::imread("/home/avees/RTCSA_2024/src/merger/data/4078.jpg", cv::IMREAD_COLOR);
@@ -143,20 +143,20 @@ void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::
 	//vector<BoundingBox> partial_car_bboxes;
 	//filterDetections(detection_list, partial_car_bboxes);
 	//merge_bbox_with_clustering(partial_car_bboxes);
-	//end_merge.push_back(get_time_in_ms());
+	end_merge.push_back(get_time_in_ms());
 
 
 	// Draw bounding boxes
-	//start_draw.push_back(get_time_in_ms());
+	start_draw.push_back(get_time_in_ms());
 	
 	for (int node_id = 0; node_id < TOTAL_NUM_OF_NODES; node_id++){
 		draw_image(cv_image, detection_list[node_id]);
 	}
 
 	// draw_map(cv_image, clusterBoxes);
-	/*for (const auto& pair : clusterBoxes) {
-	cv::rectangle(cv_image->image, pair.second, cv::Scalar(0, 0, 255), 2);
-	}
+	//for (const auto& pair : clusterBoxes) {
+	//cv::rectangle(cv_image->image, pair.second, cv::Scalar(0, 0, 255), 2);
+	//}
 
 	end_draw.push_back(get_time_in_ms());
 
@@ -164,14 +164,14 @@ void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::
 	// Show image
 	start_display.push_back(get_time_in_ms());
 
-	cv::imshow("After merge image", cv_image->image);
-	cv::waitKey(1);
+	//cv::imshow("After merge image", cv_image->image);
+	//cv::waitKey(1);
 
 	// Save the result image
 	//save_img(cv_image);
 	
 	end_display.push_back(get_time_in_ms());
-*/
+
 	// Initialize all values
 	fill(detections_received.begin(), detections_received.end(), false);
 	detection_list.clear();
@@ -181,7 +181,7 @@ void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::
 
 	draw_num++;
 	
-/*	if(draw_num == EXP_NUM) {
+	if(draw_num == EXP_NUM) {
 	     	for(int i=0 ; i<EXP_NUM; i++){		
 			e_waiting_all_received.push_back(end_waiting_all_received[i] - start_waiting_all_received[i]);
 			e_merge.push_back(end_merge[i] - start_merge[i]);
@@ -189,7 +189,7 @@ void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::
 			e_display.push_back(end_display[i]-start_display[i]);
 		}
 		
-		std::ofstream file1("master_node.csv");
+		std::ofstream file1("master_node2.csv");
 
 		file1 << std::fixed << std::setprecision(6) 
 			<< "start_waiting_all_received," << "e_waiting_all_received(us)," << "end_waiting_all_received,"
@@ -207,7 +207,7 @@ void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::
 		
 		file1.close();
 
-		std::ofstream file2("master_node_ethernet.csv");
+		std::ofstream file2("master_node_ethernet2.csv");
 		
 		file2 << std::fixed << std::setprecision(6) << "node_index," << "end_ethernet,"<<"status\n" ;
 		
@@ -221,7 +221,7 @@ void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::
 		cerr << "write result at " << "./master_node_ethernet.csv" << endl;
 		
 		exit(0);
-	}*/
+	}
 
 
   }

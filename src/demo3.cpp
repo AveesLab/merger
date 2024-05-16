@@ -159,9 +159,9 @@ void MonitorDemo3::detections_receive(const vision_msgs::msg::Detection2DArray::
 	}
 
 	// draw_map(cv_image, clusterBoxes);
-/*	for (const auto& pair : clusterBoxes) {
-	cv::rectangle(cv_image->image, pair.second, cv::Scalar(0, 0, 255), 2);
-	}
+	//for (const auto& pair : clusterBoxes) {
+	//cv::rectangle(cv_image->image, pair.second, cv::Scalar(0, 0, 255), 2);
+	//}
 
 	end_draw.push_back(get_time_in_ms());
 
@@ -169,14 +169,14 @@ void MonitorDemo3::detections_receive(const vision_msgs::msg::Detection2DArray::
 	// Show image
 	start_display.push_back(get_time_in_ms());
 
-	cv::imshow("After merge image", cv_image->image);
-	cv::waitKey(1);
+	//cv::imshow("After merge image", cv_image->image);
+	//cv::waitKey(1);
 
 	// Save the result image
 	//save_img(cv_image);
 	
 	end_display.push_back(get_time_in_ms());
-*/
+
 	// Initialize all values
 	fill(detections_received.begin(), detections_received.end(), false);
 	detection_list.clear();
@@ -186,7 +186,7 @@ void MonitorDemo3::detections_receive(const vision_msgs::msg::Detection2DArray::
 
 	draw_num++;
 	
-/*	if(draw_num == EXP_NUM) {
+	if(draw_num == EXP_NUM) {
 	     	for(int i=0 ; i<EXP_NUM; i++){		
 			e_waiting_all_received.push_back(end_waiting_all_received[i] - start_waiting_all_received[i]);
 			e_merge.push_back(end_merge[i] - start_merge[i]);
@@ -194,7 +194,7 @@ void MonitorDemo3::detections_receive(const vision_msgs::msg::Detection2DArray::
 			e_display.push_back(end_display[i]-start_display[i]);
 		}
 		
-		std::ofstream file1("master_node.csv");
+		std::ofstream file1("master_node3.csv");
 
 		file1 << std::fixed << std::setprecision(6) 
 			<< "start_waiting_all_received," << "e_waiting_all_received(us)," << "end_waiting_all_received,"
@@ -212,7 +212,7 @@ void MonitorDemo3::detections_receive(const vision_msgs::msg::Detection2DArray::
 		
 		file1.close();
 
-		std::ofstream file2("master_node_ethernet.csv");
+		std::ofstream file2("master_node_ethernet3.csv");
 		
 		file2 << std::fixed << std::setprecision(6) << "node_index," << "end_ethernet,"<<"status\n" ;
 		
@@ -226,7 +226,7 @@ void MonitorDemo3::detections_receive(const vision_msgs::msg::Detection2DArray::
 		cerr << "write result at " << "./master_node_ethernet.csv" << endl;
 		
 		exit(0);
-	}*/
+	}
 
 
   }
