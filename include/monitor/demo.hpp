@@ -80,10 +80,7 @@ private:
   vector<bool> detections_received{vector<bool>(TOTAL_NUM_OF_NODES, false)};
   // mutex
   pthread_mutex_t mutex_image;
-  pthread_mutex_t mutex_receive;
-  pthread_mutex_t mutex_init;
-   
-
+  pthread_mutex_t mutex_received;
 };
 
 
@@ -112,7 +109,7 @@ private:
   vector<bool> detections_received{vector<bool>(TOTAL_NUM_OF_NODES, false)};
   // mutex
   pthread_mutex_t mutex_image;
-  pthread_mutex_t mutex_receive;
+  pthread_mutex_t mutex_received;
 };
 
 class MonitorDemo3 : public rclcpp::Node
@@ -140,5 +137,5 @@ private:
   vector<bool> detections_received{vector<bool>(TOTAL_NUM_OF_NODES, false)};
   // mutex
   pthread_mutex_t mutex_image;
-  pthread_mutex_t mutex_receive;
+  pthread_mutex_t mutex_received;
 };

@@ -34,7 +34,7 @@ MonitorDemo2::MonitorDemo2()
 
   // Subscriber
   using placeholders::_1;
-  this->image_subscriber_ = this->create_subscription<sensor_msgs::msg::Image>("/camera/raw_image", QOS_RKL10V, bind(&MonitorDemo2::image_callback, this, _1));
+  //this->image_subscriber_ = this->create_subscription<sensor_msgs::msg::Image>("/camera/raw_image", QOS_RKL10V, bind(&MonitorDemo2::image_callback, this, _1));
   this->detections2_subscriber_ = this->create_subscription<vision_msgs::msg::Detection2DArray>("/detections2", QOS_RKL10V, bind(&MonitorDemo2::detections_receive, this, _1));
 
   // Information
@@ -51,7 +51,7 @@ void MonitorDemo2::image_callback(const sensor_msgs::msg::Image::SharedPtr image
 {
 
 
-  cv::Mat loaded_image = cv::imread("/home/avees/RTCSA_2024/src/merger/data/0316.jpg", cv::IMREAD_COLOR);
+  cv::Mat loaded_image = cv::imread("/home/avees/RTCSA_2024/src/merger/data/4078.jpg", cv::IMREAD_COLOR);
   
   if(loaded_image.empty()) {
   RCLCPP_ERROR(this->get_logger(), "Failed to load image.");
@@ -87,7 +87,7 @@ uint64_t MonitorDemo2::get_time_in_ms() {
 void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::SharedPtr detections2)
 {
 
-  pthread_mutex_lock(&mutex_receive);
+  pthread_mutex_lock(&mutex_received);
   // waiting_all_received
   if (all_of(detections_received.begin(), detections_received.end(), [](bool received) { return !received; })) {
   	//start_waiting_all_received.push_back(get_time_in_ms());
@@ -99,8 +99,6 @@ void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::
  RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections2->header.frame_id.c_str(), detections2->detections.size(), rclcpp::Time(detections2->header.stamp).seconds());
   
   detection_list[frame_id - 4] = detections2;
-  for (size_t i = 0; i < detections2->detections.size(); i++) {
-  cerr << detections2->detections[i].bbox.center.x <<endl;}
   if (frame_id >= 4 && frame_id <= 6) {
 	detections_received[frame_id - 4] = true; // Mark as received
 	status.push_back(0);
@@ -118,7 +116,7 @@ void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::
   }
   
   
-  pthread_mutex_unlock(&mutex_receive);
+  pthread_mutex_unlock(&mutex_received);
   
 
   // All nodes is received
@@ -129,7 +127,11 @@ void MonitorDemo2::detections_receive(const vision_msgs::msg::Detection2DArray::
 	// start_merge.push_back(get_time_in_ms());
 
 	pthread_mutex_lock(&mutex_image);
-
+	cv::Mat loaded_image = cv::imread("/home/avees/RTCSA_2024/src/merger/data/4078.jpg", cv::IMREAD_COLOR);
+	auto tmp_cv_image = std::make_shared<cv_bridge::CvImage>();
+	tmp_cv_image->image = loaded_image;
+	tmp_cv_image->encoding = "bgr8";
+	this->result_image_ = tmp_cv_image;
 	cv_bridge::CvImagePtr cv_image = nullptr;	
 	cv_image = this->result_image_;
 	if (cv_image == nullptr)
