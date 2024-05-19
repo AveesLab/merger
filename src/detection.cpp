@@ -50,7 +50,7 @@ MonitorDemo::~MonitorDemo()
 void MonitorDemo::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
 {
 
-  std::thread([this,image] {
+  std::thread([this] {
   cv::Mat loaded_image = cv::imread("/home/avees/RTCSA_2024/src/merger/data/4078.jpg", cv::IMREAD_COLOR);
   
   if(loaded_image.empty()) {
