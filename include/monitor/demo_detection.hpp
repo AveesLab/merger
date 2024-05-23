@@ -54,11 +54,11 @@ struct BoundingBox {
       double height;
   };
 
-class MonitorDemo : public rclcpp::Node
+class MonitorDemoDetections : public rclcpp::Node
 {
 public:
-  explicit MonitorDemo();
-  ~MonitorDemo();
+  explicit MonitorDemoDetections();
+  ~MonitorDemoDetections();
 
 private:
   void image_callback(const sensor_msgs::msg::Image::SharedPtr image);
@@ -74,7 +74,7 @@ private:
 
   // Shared Resource
   queue<cv_bridge::CvImagePtr> image_queue_;
-  cv_bridge::CvImagePtr result_image_;
+  
   
   vector<bool> detections_received{vector<bool>(TOTAL_NUM_OF_NODES, false)};
   // mutex

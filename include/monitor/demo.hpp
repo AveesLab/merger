@@ -46,7 +46,8 @@ vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list(TOTAL_NUM_O
 
 map<int, cv::Rect> clusterBoxes;
 vector<int> labels;
-  
+extern cv_bridge::CvImagePtr result_image_;
+
 struct BoundingBox {
       double centerX;
       double centerY;
@@ -54,11 +55,11 @@ struct BoundingBox {
       double height;
   };
 
-class MonitorDemo : public rclcpp::Node
+class MonitorDemoDetections : public rclcpp::Node
 {
 public:
-  explicit MonitorDemo();
-  ~MonitorDemo();
+  explicit MonitorDemoDetections();
+  ~MonitorDemoDetections();
 
 private:
   void image_callback(const sensor_msgs::msg::Image::SharedPtr image);
@@ -79,5 +80,7 @@ private:
   vector<bool> detections_received{vector<bool>(TOTAL_NUM_OF_NODES, false)};
   // mutex
   pthread_mutex_t mutex_image;
-  pthread_mutex_t mutex_receive;
+  pthread_mutex_t mutex_received;
 };
+
+

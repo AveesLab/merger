@@ -1,7 +1,8 @@
-#include "monitor/demo.hpp"
+#include "monitor/demo_detection.hpp"
 #include <iomanip>
 #include <stdint.h>
 
+#include "monitor/shared_val.hpp"
 int cluster_num=0;
 int draw_num=0;
 vector<uint64_t> end_ethernet;
@@ -22,9 +23,8 @@ vector<uint64_t> start_waiting_all_received;
 vector<uint64_t> end_waiting_all_received;
 
 
-
-MonitorDemo::MonitorDemo()
-: Node("MonitorDemo")
+MonitorDemoDetections::MonitorDemoDetections()
+: Node("MonitorDemoDetections")
 {
 
   // Information
@@ -34,61 +34,27 @@ MonitorDemo::MonitorDemo()
 
   // Subscriber
   using placeholders::_1;
-  this->image_subscriber_ = this->create_subscription<sensor_msgs::msg::Image>("/camera/raw_image", QOS_RKL10V, bind(&MonitorDemo::image_callback, this, _1));
-  this->detections_subscriber_ = this->create_subscription<vision_msgs::msg::Detection2DArray>("/detections", QOS_RKL10V, bind(&MonitorDemo::detections_receive, this, _1));
+  this->detections_subscriber_ = this->create_subscription<vision_msgs::msg::Detection2DArray>("/detections", QOS_RKL10V, bind(&MonitorDemoDetections::detections_receive, this, _1));
 
   // Information
-  RCLCPP_INFO(this->get_logger(), "[Demo] Finish initialization.");
+  RCLCPP_INFO(this->get_logger(), "[DemoDetections] Finish initialization.");
 }
 
 
-MonitorDemo::~MonitorDemo()
+MonitorDemoDetections::~MonitorDemoDetections()
 {
-  RCLCPP_INFO(this->get_logger(), "[Demo] Terminate system.\n");
+  RCLCPP_INFO(this->get_logger(), "[DemoDetections] Terminate system.\n");
 }
 
-void MonitorDemo::image_callback(const sensor_msgs::msg::Image::SharedPtr image)
-{
-
-  std::thread([this] {
-  cv::Mat loaded_image = cv::imread("/home/avees/RTCSA_2024/src/merger/data/4078.jpg", cv::IMREAD_COLOR);
-  
-  if(loaded_image.empty()) {
-  RCLCPP_ERROR(this->get_logger(), "Failed to load image.");
-  return;
-  }
-  
-  auto tmp_cv_image = std::make_shared<cv_bridge::CvImage>();
-  tmp_cv_image->image = loaded_image;
-  tmp_cv_image->encoding = "bgr8";
-  /*cv_bridge::CvImagePtr tmp_cv_image = cv_bridge::toCvCopy(*image, image->encoding);
-
-  if (tmp_cv_image->encoding == "bayer_rggb8")
-  {
-    cv::Mat rgb8_image;
-    cv::cvtColor(tmp_cv_image->image, rgb8_image, cv::COLOR_BayerRG2RGB);
-    cv::swap(tmp_cv_image->image, rgb8_image);
-    
-    tmp_cv_image->encoding = "rgb8";
-  }*/
-
-  // Append a image on queue
-  pthread_mutex_lock(&mutex_image);
-  this->result_image_ = tmp_cv_image;
-  pthread_mutex_unlock(&mutex_image);
-  }).detach();
-}
-
-uint64_t MonitorDemo::get_time_in_ms() {
+uint64_t MonitorDemoDetections::get_time_in_ms() {
   rclcpp::Time now = this->get_clock()->now();
   uint64_t nanosecond = now.nanoseconds();
   return nanosecond/1000;
 }
 
-void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::SharedPtr detections)
+void MonitorDemoDetections::detections_receive(const vision_msgs::msg::Detection2DArray::SharedPtr detections)
 {
 
-  std::thread([this,detections] {
   pthread_mutex_lock(&mutex_receive);
   // waiting_all_received
   if (all_of(detections_received.begin(), detections_received.end(), [](bool received) { return !received; })) {
@@ -99,7 +65,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   node_end_ethernet.push_back(get_time_in_ms());
   
 
-  RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
+  //RCLCPP_INFO(this->get_logger(), "node_index: %s, num_detection: %u, Computing_nodes_timestamp : %2f", detections->header.frame_id.c_str(), detections->detections.size(), rclcpp::Time(detections->header.stamp).seconds());
   
   detection_list[frame_id - 1] = detections;
   
@@ -121,37 +87,32 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   
   
   pthread_mutex_unlock(&mutex_receive);
-  
 
   // All nodes is received
   pthread_mutex_lock(&mutex_receive_check);
-
   if (all_received) {
-	  
 	// merge with clustering 
 	start_merge.push_back(get_time_in_ms());
-
 	pthread_mutex_lock(&mutex_image);
-
-	cv_bridge::CvImagePtr cv_image = nullptr;	
-	cv_image = this->result_image_;
+	cv_bridge::CvImagePtr cv_image = nullptr;
+	cv_image = result_image_;
 	if (cv_image == nullptr)
 	{
 	return;
 	}
+
 	pthread_mutex_unlock(&mutex_image);
 
-
 	vector<BoundingBox> partial_car_bboxes;
-	filterDetections(detection_list, partial_car_bboxes);
-	merge_bbox_with_clustering(partial_car_bboxes);
 
+	filterDetections(detection_list, partial_car_bboxes);
+
+	merge_bbox_with_clustering(partial_car_bboxes);
 	end_merge.push_back(get_time_in_ms());
 
 
 	// Draw bounding boxes
 	start_draw.push_back(get_time_in_ms());
-	
 	for (int node_id = 0; node_id < TOTAL_NUM_OF_NODES; node_id++){
 		draw_image(cv_image, detection_list[node_id]);
 	}
@@ -167,8 +128,8 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 	// Show image
 	start_display.push_back(get_time_in_ms());
 
-	cv::imshow("After merge image", cv_image->image);
-	cv::waitKey(1);
+	//cv::imshow("After merge image", cv_image->image);
+	//cv::waitKey(1);
 
 	// Save the result image
 	//save_img(cv_image);
@@ -177,7 +138,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 
 	// Initialize all values
 	fill(detections_received.begin(), detections_received.end(), false);
-	// detection_list.clear();
+	//detection_list.clear();
 	labels.clear();
 	clusterBoxes.clear();
 
@@ -229,10 +190,9 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 
   }
   pthread_mutex_unlock(&mutex_receive_check);
-  }).detach();
 }
   
-void MonitorDemo::draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::msg::Detection2DArray::SharedPtr detections)
+void MonitorDemoDetections::draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::msg::Detection2DArray::SharedPtr detections)
 {
   for (size_t i = 0; i < detections->detections.size(); i++) {
     // Get rectangle from 1 object
@@ -249,7 +209,7 @@ void MonitorDemo::draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::
   }
 }
 
-void MonitorDemo::filterDetections(const std::vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list,
+void MonitorDemoDetections::filterDetections(const std::vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list,
                       std::vector<BoundingBox>& partial_car_bboxes) {
     for (const auto& detections : detection_list) { // detection_list 순회
         for (const auto& detection : detections->detections) { // 각 Detection2DArray 내의 Detection2D 순회
@@ -269,7 +229,7 @@ void MonitorDemo::filterDetections(const std::vector<vision_msgs::msg::Detection
 }
 
 
-void MonitorDemo::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes, double eps, int minPts) {
+void MonitorDemoDetections::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes, double eps, int minPts) {
     
     int clusterId = 0;
     labels.resize(partial_car_bboxes.size(), -1);
@@ -295,21 +255,16 @@ void MonitorDemo::simpleDBSCAN(const std::vector<BoundingBox> partial_car_bboxes
 
 }
 
-void MonitorDemo::merge_bbox_with_clustering(const vector<BoundingBox> partial_car_bboxes)
+void MonitorDemoDetections::merge_bbox_with_clustering(const vector<BoundingBox> partial_car_bboxes)
 {
     
     double eps = 300.0;
     int minPts = 2; 
     
     simpleDBSCAN(partial_car_bboxes, eps, minPts);
-
- 
     
     for (size_t i = 0; i < partial_car_bboxes.size(); ++i) {
         if (labels[i] == -1) continue;
-
-
-
 
         cv::Point top_left(partial_car_bboxes[i].centerX - partial_car_bboxes[i].width / 2, partial_car_bboxes[i].centerY - partial_car_bboxes[i].height / 2);
         cv::Point bottom_right(partial_car_bboxes[i].centerX + partial_car_bboxes[i].width / 2, partial_car_bboxes[i].centerY + partial_car_bboxes[i].height / 2);
@@ -323,7 +278,7 @@ void MonitorDemo::merge_bbox_with_clustering(const vector<BoundingBox> partial_c
     }
   }
 
-void MonitorDemo::save_img(cv_bridge::CvImagePtr cv_image) {
+void MonitorDemoDetections::save_img(cv_bridge::CvImagePtr cv_image) {
     string file_path = "./src/merger/result/";
 
     auto t = time(nullptr);

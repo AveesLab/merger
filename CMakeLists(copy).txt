@@ -41,18 +41,8 @@ ament_target_dependencies(demo_node
   Threads
 )
 
-add_library(demo_cam_library SHARED src/demo_camera.cpp)
-ament_target_dependencies(demo_cam_library
-  rclcpp
-  std_msgs
-  sensor_msgs
-  vision_msgs
-  cv_bridge
-  Threads
-)
-
-add_library(demo_det_library SHARED src/demo_detection.cpp)
-ament_target_dependencies(demo_det_library
+add_library(demo_library SHARED src/demo.cpp)
+ament_target_dependencies(demo_library
   rclcpp
   std_msgs
   sensor_msgs
@@ -62,14 +52,12 @@ ament_target_dependencies(demo_det_library
 )
 
 target_link_libraries(demo_node
-  demo_cam_library
-  demo_det_library
+  demo_library
   pcanbasic
 )
 
 install(TARGETS
-  demo_cam_library
-  demo_det_library
+  demo_library
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin

@@ -89,7 +89,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
 {
 
   std::thread([this,detections] {
-  pthread_mutex_lock(&mutex_receive);
+  pthread_mutex_lock(&mutex_received);
   // waiting_all_received
   if (all_of(detections_received.begin(), detections_received.end(), [](bool received) { return !received; })) {
   	start_waiting_all_received.push_back(get_time_in_ms());
@@ -120,7 +120,7 @@ void MonitorDemo::detections_receive(const vision_msgs::msg::Detection2DArray::S
   }
   
   
-  pthread_mutex_unlock(&mutex_receive);
+  pthread_mutex_unlock(&mutex_received);
   
 
   // All nodes is received

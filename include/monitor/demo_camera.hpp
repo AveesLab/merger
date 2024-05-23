@@ -39,42 +39,27 @@ using namespace std;
 
 #define TOTAL_NUM_OF_NODES 9
 #define EXP_NUM 200
-bool all_received;
 
-pthread_mutex_t mutex_receive_check;
-vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list(TOTAL_NUM_OF_NODES);
-
-map<int, cv::Rect> clusterBoxes;
-vector<int> labels;
   
-struct BoundingBox {
-      double centerX;
-      double centerY;
-      double width;
-      double height;
-  };
-
-class MonitorDemo : public rclcpp::Node
+class MonitorDemoCamera : public rclcpp::Node
 {
 public:
-  explicit MonitorDemo();
-  ~MonitorDemo();
+  explicit MonitorDemoCamera();
+  ~MonitorDemoCamera();
 
 private:
   void image_callback(const sensor_msgs::msg::Image::SharedPtr image);
   void detections_receive(const vision_msgs::msg::Detection2DArray::SharedPtr detections);
   void draw_image(cv_bridge::CvImagePtr cv_image, const vision_msgs::msg::Detection2DArray::SharedPtr detections);
-  void merge_bbox_with_clustering(const vector<BoundingBox> partial_car);
-  void simpleDBSCAN(const std::vector<BoundingBox> partial_car, double eps, int minPts);
   void save_img(cv_bridge::CvImagePtr cv_image);
-  void filterDetections(const std::vector<vision_msgs::msg::Detection2DArray::SharedPtr> detection_list, std::vector<BoundingBox>& partial_car_bboxes);
   uint64_t get_time_in_ms();
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscriber_;
   rclcpp::Subscription<vision_msgs::msg::Detection2DArray>::SharedPtr detections_subscriber_;
 
   // Shared Resource
   queue<cv_bridge::CvImagePtr> image_queue_;
-  cv_bridge::CvImagePtr result_image_;
+  //cv_bridge::CvImagePtr result_image_;
+
   
   vector<bool> detections_received{vector<bool>(TOTAL_NUM_OF_NODES, false)};
   // mutex
