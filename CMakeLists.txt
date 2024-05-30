@@ -15,9 +15,16 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# Path to * project folder.
+set(DARKNET_PATH ${PROJECT_SOURCE_DIR}/include/objectdetection/darknet)
+
+# Give a custom name to shared library which is provided by * when the one compiled.
+set(DARKNET_LIB_NAME libdarknet)
+
 # Find required packages
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(${DARKNET_PATH}/include)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -51,7 +58,10 @@ ament_target_dependencies(demo_cam_library
   Threads
 )
 
-add_library(demo_det_library SHARED src/demo_detection.cpp)
+add_library(demo_det_library SHARED 
+   src/demo_detection.cpp
+   include/objectdetection/objectdetection.cpp
+   )
 ament_target_dependencies(demo_det_library
   rclcpp
   std_msgs
@@ -61,9 +71,14 @@ ament_target_dependencies(demo_det_library
   Threads
 )
 
+add_library(${DARKNET_LIB_NAME} SHARED IMPORTED)
+
+set_property(TARGET ${DARKNET_LIB_NAME} PROPERTY IMPORTED_LOCATION "${DARKNET_PATH}/libdarknet.so")
+
 target_link_libraries(demo_node
   demo_cam_library
   demo_det_library
+  ${DARKNET_LIB_NAME}
   pcanbasic
 )
 
